@@ -1,0 +1,115 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Linkup API",
+    "version": "1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Search",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Run a web search and return context for an AI agent or LLM.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.linkup.so/v1/search",
+            "body": {
+              "type": "json",
+              "data": "{\n  \"q\": \"<string>\",\n  \"depth\": \"standard\",\n  \"outputType\": \"sourcedAnswer\",\n  \"includeInlineCitations\": true\n}"
+            }
+          },
+          "docs": "Runs a natural-language query at fast, standard, or deep precision and returns ranked search results, a sourced answer with optional inline citations, or schema-driven structured output."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Fetch",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Fetch a URL as clean LLM-ready markdown.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.linkup.so/v1/fetch",
+            "body": {
+              "type": "json",
+              "data": "{\n  \"url\": \"<string>\",\n  \"renderJs\": false,\n  \"includeRawHtml\": false,\n  \"extractImages\": false\n}"
+            }
+          },
+          "docs": "Retrieves the content of a given URL and returns it as clean markdown, with options to render JavaScript, include raw HTML, and extract images."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Research",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Start an asynchronous deep-research task (beta).",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.linkup.so/v1/research",
+            "body": {
+              "type": "json",
+              "data": "{\n  \"query\": \"<string>\",\n  \"mode\": \"research\",\n  \"reasoningDepth\": \"L\"\n}"
+            }
+          },
+          "docs": "Starts an autonomous web investigation. Returns immediately with a task id and a non-terminal status; poll the task until it reaches a terminal state to retrieve the synthesized, cited result."
+        },
+        {
+          "info": {
+            "name": "Retrieve the state and result of a research task.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.linkup.so/v1/research/{id}"
+          },
+          "docs": "Returns the research task object with its status (pending, processing, completed, failed); the result is in the output field when completed."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Credits",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Retrieve the remaining credits balance for the account.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.linkup.so/v1/credits/balance"
+          },
+          "docs": "Returns the number of credits remaining in your account."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

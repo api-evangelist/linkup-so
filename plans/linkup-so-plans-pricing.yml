@@ -1,0 +1,120 @@
+specification: API Commons Plans
+specificationVersion: '0.1'
+schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main/schema/api-commons.yml#/$defs/Plans
+provider: Linkup
+providerId: linkup-so
+created: '2026-06-20'
+modified: '2026-06-20'
+reconciled: true
+tags:
+- AI
+- LLM
+- Web Search
+- Grounding
+- RAG
+- Plans
+description: >-
+  Linkup uses a credits-based, pay-as-you-go pricing model. New accounts receive
+  free credits (enough to run roughly 4,000 queries). Beyond the free tier, each
+  API call consumes credits priced per request: Search (Fast / Standard / Deep)
+  at roughly $0.005-$0.006 per call, Fetch at $0.001-$0.005 per call, and the
+  asynchronous Research endpoint at $0.25-$2.50 per call. SOC 2 Type II and zero
+  data retention are included on every plan. An Enterprise tier offers custom
+  pricing, personalized indexes, dedicated refresh rates, private environments,
+  and premium support. A startup program offers up to $5,000 in free credits.
+notes: >-
+  Per-request prices are ranges published on the Linkup pricing page; the exact
+  per-call cost varies by depth/mode. Verify current rates at
+  https://www.linkup.so/pricing during reconciliation.
+sources:
+- https://www.linkup.so/pricing
+- https://docs.linkup.so
+plans:
+- id: linkup-free
+  name: Free Credits
+  type: free
+  description: >-
+    Free credits on signup, enough to run roughly 4,000 queries, with no card
+    required to start.
+  entries:
+  - label: Free Query Credits
+    name: free_credits
+    type: free
+    metric: requests
+    limit: 4000
+    timeFrame: lifetime
+    geo: global
+    unit: 1
+    price: $0.00
+    userMultiplied: false
+  elements:
+  - name: Search
+  - name: Fetch
+  - name: Research
+- id: linkup-pay-as-you-go
+  name: Pay-as-you-go
+  type: usage
+  description: >-
+    Credit-metered usage across all endpoints with no monthly minimum. Each call
+    consumes credits priced per request by endpoint and depth/mode.
+  entries:
+  - label: Search (Fast / Standard / Deep)
+    name: search
+    type: usage
+    metric: requests
+    limit: -1
+    timeFrame: month
+    geo: global
+    unit: 1
+    price: $0.005-$0.006 per search
+    userMultiplied: false
+  - label: Fetch
+    name: fetch
+    type: usage
+    metric: requests
+    limit: -1
+    timeFrame: month
+    geo: global
+    unit: 1
+    price: $0.001-$0.005 per fetch
+    userMultiplied: false
+  - label: Research (async)
+    name: research
+    type: usage
+    metric: requests
+    limit: -1
+    timeFrame: month
+    geo: global
+    unit: 1
+    price: $0.25-$2.50 per research task
+    userMultiplied: false
+  elements:
+  - name: Search
+  - name: Fetch
+  - name: Research
+  - name: Credits Balance
+- id: linkup-enterprise
+  name: Enterprise
+  type: enterprise
+  description: >-
+    Custom pricing with personalized indexes, dedicated refresh rates, private
+    environments, and premium support. Contact Linkup sales.
+  entries:
+  - label: Enterprise Agreement
+    name: enterprise
+    type: flat
+    metric: contract
+    limit: -1
+    timeFrame: year
+    geo: global
+    unit: 1
+    price: contact sales
+    userMultiplied: false
+  elements:
+  - name: Personalized Indexes
+  - name: Dedicated Refresh Rates
+  - name: Private Environments
+  - name: Premium Support
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

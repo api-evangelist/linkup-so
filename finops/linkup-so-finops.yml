@@ -1,0 +1,97 @@
+specification: FinOps Framework
+specificationVersion: '1.0'
+schema: https://www.finops.org/framework/
+provider: Linkup
+providerId: linkup-so
+created: '2026-06-20'
+modified: '2026-06-20'
+reconciled: true
+tags:
+- AI
+- LLM
+- Web Search
+- Grounding
+- RAG
+- FinOps
+- Cost Management
+- FOCUS
+description: >-
+  FinOps view of Linkup spend. Linkup bills on a credits-based, per-request model:
+  each Search, Fetch, and Research call consumes credits priced per call. Search
+  runs about $0.005-$0.006 per call (varying by Fast / Standard / Deep depth),
+  Fetch about $0.001-$0.005 per call, and async Research about $0.25-$2.50 per
+  task. New accounts get free credits; Enterprise uses custom pricing.
+notes: >-
+  Per-request prices are ranges from the Linkup pricing page and vary by
+  depth/mode; verify against https://www.linkup.so/pricing during reconciliation.
+sources:
+- https://www.linkup.so/pricing
+- https://docs.linkup.so
+- https://focus.finops.org/focus-specification/v1-3/
+alignedWith:
+  framework: FinOps Foundation Framework
+  frameworkUrl: https://www.finops.org/framework/
+  dataSpec: FOCUS
+  dataSpecVersion: '1.3'
+  dataSpecUrl: https://focus.finops.org/focus-specification/v1-3/
+publisherName: Linkup
+serviceCategory: AI and Machine Learning
+billingModel:
+  pricingCategory: Usage-Based
+  billingFrequency: Monthly
+  billingCurrency: USD
+  chargeCategories:
+  - Usage
+  - Purchase
+  - Adjustment
+focusColumns:
+  ServiceName: Linkup API
+  ServiceCategory: AI and Machine Learning
+  ProviderName: Linkup
+  PublisherName: Linkup
+  InvoiceIssuerName: Linkup
+  BillingCurrency: USD
+  ChargeCategory: Usage
+  PricingCategory: Usage-Based
+meters:
+- name: search_requests
+  description: Search calls, billed per request and varying by depth (Fast / Standard / Deep).
+  unit: requests
+  aggregation: sum
+  dimensions:
+  - account
+  - depth
+  - outputType
+- name: fetch_requests
+  description: Fetch calls converting a URL to markdown, billed per request.
+  unit: requests
+  aggregation: sum
+  dimensions:
+  - account
+- name: research_tasks
+  description: Asynchronous Research tasks, billed per task and varying by mode / reasoning depth.
+  unit: requests
+  aggregation: sum
+  dimensions:
+  - account
+  - mode
+  - reasoningDepth
+- name: credits_consumed
+  description: Credits drawn down from the account balance across all endpoints.
+  unit: credits
+  aggregation: sum
+  dimensions:
+  - account
+  - endpoint
+principles:
+- name: Visibility
+  description: Track the credits balance via GET /credits/balance and break down spend by endpoint and search depth.
+- name: Allocation
+  description: Tag API keys per workload/team; map credit burn to internal cost centers.
+- name: Optimization
+  description: Use Fast/Standard search depth instead of Deep where sufficient; cache Fetch results; reserve costly async Research for questions a single search cannot answer; consume free and startup credits before paid usage.
+- name: Accountability
+  description: Assign owners per project/key; review credit spend monthly against budget and watch for 402 Payment Required signals.
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

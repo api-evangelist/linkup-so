@@ -1,0 +1,65 @@
+aid: linkup-so
+name: Linkup
+review:
+  question: Does Linkup expose a documented public WebSocket or streaming (SSE) API?
+  answer: false
+  date: '2026-06-20'
+  reviewer: API Evangelist
+  asyncapiSpecCreated: false
+  asyncapiScopeNote: |
+    Per API Evangelist scope, HTTP Server-Sent Events (SSE) is in-scope for
+    AsyncAPI modeling. Linkup documents no SSE or WebSocket surface: Search,
+    Fetch, and the credits balance endpoint are synchronous request/response
+    REST calls, and the Research endpoint is asynchronous via task creation
+    plus HTTP polling (request/response), not an event stream. No AsyncAPI
+    document was created because there is no streaming or event-driven
+    transport to model.
+findings:
+  summary: |
+    Linkup does not publish a documented public WebSocket or SSE API. The
+    Linkup platform exposes REST (HTTPS) endpoints under
+    https://api.linkup.so/v1: POST /search, POST /fetch, POST /research (with
+    GET polling for results), and GET /credits/balance. Search and Fetch are
+    sub-second synchronous calls. Research is long-running and asynchronous,
+    but its results are retrieved by polling a task resource over REST, not by
+    a streaming transport. No realtime, bidirectional, or server-push
+    (ws:// / wss:// / text/event-stream) endpoint is documented.
+  transports:
+    - protocol: REST
+      scheme: https
+      baseURL: https://api.linkup.so/v1
+      documented: true
+    - protocol: SSE
+      scheme: https
+      documented: false
+      note: No Server-Sent Events / text/event-stream surface is documented for any Linkup endpoint.
+    - protocol: WebSocket
+      scheme: wss
+      documented: false
+      note: No WebSocket endpoint is documented in Linkup's API reference as of the review date.
+  endpointsConfirmedRest:
+    - POST https://api.linkup.so/v1/search
+    - POST https://api.linkup.so/v1/fetch
+    - POST https://api.linkup.so/v1/research
+    - GET  https://api.linkup.so/v1/research/{id}
+    - GET  https://api.linkup.so/v1/credits/balance
+sources:
+  - url: https://docs.linkup.so/pages/documentation/get-started/introduction
+    type: Documentation
+    note: Describes Search, Fetch, and Research capabilities; Research is async (polling), no streaming transport mentioned.
+  - url: https://docs.linkup.so/pages/documentation/api-reference/endpoint/post-search
+    type: APIReference
+    note: POST /search is a synchronous REST call returning JSON.
+  - url: https://docs.linkup.so/pages/documentation/api-reference/endpoint/post-fetch
+    type: APIReference
+    note: POST /fetch is a synchronous REST call returning JSON markdown.
+  - url: https://docs.linkup.so/pages/documentation/api-reference/endpoint/get-balance
+    type: APIReference
+    note: GET /credits/balance is a synchronous REST call.
+actions:
+  asyncapiPath: null
+  apisYmlUpdated: true
+  reason: |
+    No WebSocket or SSE protocol surface exists. The async Research endpoint is
+    modeled as REST task creation plus polling in the OpenAPI definition; no
+    AsyncAPI document was authored because there is no event-stream transport.

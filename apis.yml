@@ -1,0 +1,107 @@
+aid: linkup-so
+url: https://raw.githubusercontent.com/api-evangelist/linkup-so/refs/heads/main/apis.yml
+name: Linkup
+kind: company
+description: Linkup is a production-grade web search and answer API for AI agents and
+  LLMs. Its /search endpoint grounds model responses in real-time web context, returning
+  ranked results, sourced answers with citations, or structured output, plus /fetch
+  for clean LLM-ready markdown, an async /research endpoint, and a credits balance
+  endpoint - all authenticated with a Bearer API key.
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+tags:
+- AI
+- LLM
+- Web Search
+- Grounding
+- RAG
+created: '2026-06-20'
+modified: '2026-06-20'
+specificationVersion: '0.19'
+apis:
+- aid: linkup-so:linkup-search-api
+  name: Linkup Search API
+  tags:
+  - Web Search
+  - Sourced Answer
+  - Structured Output
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://docs.linkup.so/pages/documentation/api-reference/endpoint/post-search
+  baseURL: https://api.linkup.so/v1
+  properties:
+  - url: https://docs.linkup.so/pages/documentation/get-started/introduction
+    type: Documentation
+  - url: https://docs.linkup.so/pages/documentation/api-reference/endpoint/post-search
+    type: APIReference
+  - url: openapi/linkup-so-openapi.yml
+    type: OpenAPI
+  description: Grounds AI agents and LLMs in real-time web context. POST /search runs
+    a natural-language query at fast, standard, or deep precision and returns ranked
+    search results, a sourced answer with inline citations, or schema-driven structured
+    output, with date, domain, and image filters.
+- aid: linkup-so:linkup-fetch-api
+  name: Linkup Fetch API
+  tags:
+  - Fetch
+  - Markdown
+  - Content Extraction
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://docs.linkup.so/pages/documentation/api-reference/endpoint/post-fetch
+  baseURL: https://api.linkup.so/v1
+  properties:
+  - url: https://docs.linkup.so/pages/documentation/api-reference/endpoint/post-fetch
+    type: APIReference
+  - url: openapi/linkup-so-openapi.yml
+    type: OpenAPI
+  description: POST /fetch retrieves the content of a given URL as clean, LLM-ready
+    markdown, with options to render JavaScript, include raw HTML, and extract images.
+- aid: linkup-so:linkup-research-api
+  name: Linkup Research API
+  tags:
+  - Research
+  - Async
+  - Citations
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://docs.linkup.so/pages/documentation/get-started/introduction
+  baseURL: https://api.linkup.so/v1
+  properties:
+  - url: https://docs.linkup.so/pages/documentation/get-started/introduction
+    type: Documentation
+  - url: openapi/linkup-so-openapi.yml
+    type: OpenAPI
+  description: Asynchronous deep-research endpoint (beta). POST /research starts an
+    autonomous web investigation that returns a task id; poll the task until it reaches
+    a terminal state to retrieve a synthesized, cited report.
+- aid: linkup-so:linkup-credits-api
+  name: Linkup Credits API
+  tags:
+  - Credits
+  - Account
+  - Balance
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://docs.linkup.so/pages/documentation/api-reference/endpoint/get-balance
+  baseURL: https://api.linkup.so/v1
+  properties:
+  - url: https://docs.linkup.so/pages/documentation/api-reference/endpoint/get-balance
+    type: APIReference
+  - url: openapi/linkup-so-openapi.yml
+    type: OpenAPI
+  description: GET /credits/balance returns the number of credits remaining in your
+    account.
+common:
+- type: GitHubOrganization
+  url: https://github.com/LinkupPlatform
+- type: LinkedIn
+  url: https://www.linkedin.com/company/linkup-platform
+- type: Website
+  url: https://www.linkup.so
+- type: Documentation
+  url: https://docs.linkup.so
+- type: Plans
+  url: plans/linkup-so-plans-pricing.yml
+- type: RateLimits
+  url: rate-limits/linkup-so-rate-limits.yml
+- type: FinOps
+  url: finops/linkup-so-finops.yml
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

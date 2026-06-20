@@ -1,0 +1,59 @@
+specification: API Commons Rate Limits
+specificationVersion: '0.1'
+schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main/schema/api-commons.yml#/$defs/RateLimits
+provider: Linkup
+providerId: linkup-so
+created: '2026-06-20'
+modified: '2026-06-20'
+reconciled: false
+tags:
+- AI
+- LLM
+- Web Search
+- Grounding
+- RAG
+- Rate Limiting
+- Quotas
+- Throttling
+description: >-
+  Linkup applies per-account throttling on its API and returns HTTP 429 when a
+  client exceeds its allowed request rate. Spend is governed primarily by a
+  credits balance rather than fixed published RPM/RPS tiers: a 402 Payment
+  Required is returned when credits are exhausted. The asynchronous Research
+  endpoint must be polled no faster than roughly once per second or the poll is
+  rate-limited. Specific per-account RPM/RPS values are not publicly reconciled
+  in this artifact.
+notes: >-
+  Verify per-plan request-rate limits and polling guidance in the Linkup
+  documentation on reconciliation; limits vary by plan and may be raised on
+  Enterprise agreements.
+sources:
+- https://docs.linkup.so
+- https://www.linkup.so/pricing
+responseCodes:
+  throttled: 429
+  paymentRequired: 402
+limits:
+- name: Requests Per Account
+  scope: account
+  metric: requests
+  limit: see provider documentation
+  notes: Per-account request throttling; exceeding it returns HTTP 429.
+- name: Credits Balance
+  scope: account
+  metric: credits
+  limit: account credit balance
+  notes: Calls consume credits; exhausting credits returns HTTP 402 Payment Required.
+- name: Research Polling
+  scope: account
+  metric: requests
+  limit: ~1 poll per second
+  notes: Polling GET /research/{id} faster than about once per second is rate-limited.
+policies:
+- name: Credit-Governed Usage
+  description: Usage is metered against a prepaid/free credit balance rather than fixed RPM tiers.
+- name: Backoff Strategy
+  description: Clients should implement exponential backoff with jitter on 429 responses and poll async research tasks no faster than once per second.
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

@@ -1,0 +1,275 @@
+{
+  "item": [
+    {
+      "id": "a1b2c3d4-0001-4001-9001-000000000001",
+      "name": "Search",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "a1b2c3d4-0001-4001-9001-000000000002",
+          "name": "Run a web search and return context for an AI agent or LLM.",
+          "request": {
+            "name": "Run a web search and return context for an AI agent or LLM.",
+            "description": {
+              "content": "Runs a natural-language query at fast, standard, or deep precision and returns ranked search results, a sourced answer with optional inline citations, or schema-driven structured output.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "search"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"q\": \"<string>\",\n  \"depth\": \"standard\",\n  \"outputType\": \"sourcedAnswer\",\n  \"includeInlineCitations\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "a1b2c3d4-0002-4001-9001-000000000001",
+      "name": "Fetch",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "a1b2c3d4-0002-4001-9001-000000000002",
+          "name": "Fetch a URL as clean LLM-ready markdown.",
+          "request": {
+            "name": "Fetch a URL as clean LLM-ready markdown.",
+            "description": {
+              "content": "Retrieves the content of a given URL and returns it as clean markdown, with options to render JavaScript, include raw HTML, and extract images.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "fetch"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"<string>\",\n  \"renderJs\": false,\n  \"includeRawHtml\": false,\n  \"extractImages\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "a1b2c3d4-0003-4001-9001-000000000001",
+      "name": "Research",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "a1b2c3d4-0003-4001-9001-000000000002",
+          "name": "Start an asynchronous deep-research task (beta).",
+          "request": {
+            "name": "Start an asynchronous deep-research task (beta).",
+            "description": {
+              "content": "Starts an autonomous web investigation. Returns immediately with a task id and a non-terminal status; poll the task until it reaches a terminal state to retrieve the synthesized, cited result.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "research"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"<string>\",\n  \"mode\": \"research\",\n  \"reasoningDepth\": \"L\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "a1b2c3d4-0003-4001-9001-000000000003",
+          "name": "Retrieve the state and result of a research task.",
+          "request": {
+            "name": "Retrieve the state and result of a research task.",
+            "description": {
+              "content": "Returns the research task object with its status (pending, processing, completed, failed); the result is in the output field when completed.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "research",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "<string>"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": []
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "a1b2c3d4-0004-4001-9001-000000000001",
+      "name": "Credits",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "a1b2c3d4-0004-4001-9001-000000000002",
+          "name": "Retrieve the remaining credits balance for the account.",
+          "request": {
+            "name": "Retrieve the remaining credits balance for the account.",
+            "description": {
+              "content": "Returns the number of credits remaining in your account.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "credits",
+                "balance"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": []
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.linkup.so/v1",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "a1b2c3d4-0000-4001-9001-000000000000",
+    "name": "Linkup API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Production-grade web search and answer API for AI agents and LLMs. Search, Fetch, async Research, and Credits Balance endpoints, authenticated with a Bearer API key.\n\nWebsite: https://www.linkup.so\nDocs: https://docs.linkup.so",
+      "type": "text/plain"
+    }
+  }
+}
