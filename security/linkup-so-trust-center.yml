@@ -1,0 +1,12 @@
+generated: '2026-07-11'
+method: searched
+probe: true
+source: https://trust.linkup.so/
+url: https://trust.linkup.so/
+certifications:
+- SOC 2
+evidence:
+- source: https://trust.linkup.so/
+  keywords:
+  - soc2
+  - trust center

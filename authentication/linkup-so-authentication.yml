@@ -1,0 +1,14 @@
+generated: '2026-07-11'
+method: derived
+source: openapi/linkup-so-openapi.yml
+summary:
+  types:
+  - http
+schemes:
+- name: bearerAuth
+  type: http
+  scheme: bearer
+  bearerFormat: JWT
+  description: 'Pass your Linkup API key as `Authorization: Bearer <API_KEY>`.'
+  sources:
+  - openapi/linkup-so-openapi.yml

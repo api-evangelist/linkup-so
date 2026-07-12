@@ -88,6 +88,12 @@ apis:
   description: GET /credits/balance returns the number of credits remaining in your
     account.
 common:
+- type: TrustCenter
+  url: security/linkup-so-trust-center.yml
+- type: DomainSecurity
+  url: security/linkup-so-domain-security.yml
+- type: Authentication
+  url: authentication/linkup-so-authentication.yml
 - type: GitHubOrganization
   url: https://github.com/LinkupPlatform
 - type: LinkedIn
@@ -100,6 +106,8 @@ common:
   url: plans/linkup-so-plans-pricing.yml
 - type: RateLimits
   url: rate-limits/linkup-so-rate-limits.yml
+- type: Blog
+  url: https://www.linkup.so/blog
 - type: FinOps
   url: finops/linkup-so-finops.yml
 maintainers:
