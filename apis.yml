@@ -88,6 +88,8 @@ apis:
   description: GET /credits/balance returns the number of credits remaining in your
     account.
 common:
+- type: AgenticAccess
+  url: agentic-access/linkup-so-agentic-access.yml
 - type: TrustCenter
   url: security/linkup-so-trust-center.yml
 - type: DomainSecurity
