@@ -1,0 +1,154 @@
+openapi: 3.0.1
+info:
+  title: Linkup Credits Search API
+  description: Production-grade web search and answer API for AI agents and LLMs. The /search endpoint grounds model responses in real-time web context, returning ranked results, sourced answers with inline citations, or schema-driven structured output. /fetch converts a URL into clean LLM-ready markdown, /research starts an asynchronous deep-research task, and /credits/balance reports remaining account credits. All endpoints authenticate with a Bearer API key.
+  termsOfService: https://www.linkup.so/terms-of-service
+  contact:
+    name: Linkup
+    url: https://www.linkup.so
+  version: '1.0'
+servers:
+- url: https://api.linkup.so/v1
+security:
+- bearerAuth: []
+tags:
+- name: Search
+paths:
+  /search:
+    post:
+      operationId: search
+      tags:
+      - Search
+      summary: Run a web search and return context for an AI agent or LLM.
+      description: Runs a natural-language query against the live web at fast, standard, or deep precision and returns ranked search results, a sourced answer with optional inline citations, or schema-driven structured output.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '402':
+          description: Payment Required (insufficient credits)
+        '429':
+          description: Too Many Requests
+components:
+  schemas:
+    Source:
+      type: object
+      properties:
+        name:
+          type: string
+        url:
+          type: string
+          format: uri
+        snippet:
+          type: string
+    SearchRequest:
+      type: object
+      required:
+      - q
+      - depth
+      - outputType
+      properties:
+        q:
+          type: string
+          description: Natural-language question used to retrieve web context.
+        depth:
+          type: string
+          enum:
+          - fast
+          - standard
+          - deep
+          description: Search precision mode.
+        outputType:
+          type: string
+          enum:
+          - searchResults
+          - sourcedAnswer
+          - structured
+          description: Shape of the returned payload.
+        structuredOutputSchema:
+          type: string
+          description: JSON Schema (as a string) describing the desired structured output. Required when outputType is `structured`.
+        includeImages:
+          type: boolean
+          default: false
+          description: Include images in the results.
+        includeInlineCitations:
+          type: boolean
+          default: false
+          description: Include inline citations. Applies only to `sourcedAnswer`.
+        includeSources:
+          type: boolean
+          default: false
+          description: Include sources. Applies only to `structured`.
+        fromDate:
+          type: string
+          format: date
+          description: Restrict results to this date forward (YYYY-MM-DD).
+        toDate:
+          type: string
+          format: date
+          description: Restrict results up to this date (YYYY-MM-DD).
+        includeDomains:
+          type: array
+          items:
+            type: string
+          description: Restrict the search to these domains (max 100).
+        excludeDomains:
+          type: array
+          items:
+            type: string
+          description: Exclude these domains from the search.
+        maxResults:
+          type: integer
+          minimum: 1
+          description: Maximum number of results to return.
+    SearchResponse:
+      type: object
+      description: Shape varies by outputType. For `searchResults`, an array of results; for `sourcedAnswer`, an answer plus sources; for `structured`, a custom object optionally accompanied by sources.
+      properties:
+        answer:
+          type: string
+          description: The sourced answer (outputType `sourcedAnswer`).
+        results:
+          type: array
+          description: Ranked search results (outputType `searchResults`).
+          items:
+            $ref: '#/components/schemas/SearchResult'
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/Source'
+    SearchResult:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - text
+          - image
+        name:
+          type: string
+        url:
+          type: string
+          format: uri
+        content:
+          type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Pass your Linkup API key as `Authorization: Bearer <API_KEY>`.'

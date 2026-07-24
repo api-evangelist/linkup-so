@@ -1,0 +1,46 @@
+openapi: 3.0.1
+info:
+  title: Linkup Credits API
+  description: Production-grade web search and answer API for AI agents and LLMs. The /search endpoint grounds model responses in real-time web context, returning ranked results, sourced answers with inline citations, or schema-driven structured output. /fetch converts a URL into clean LLM-ready markdown, /research starts an asynchronous deep-research task, and /credits/balance reports remaining account credits. All endpoints authenticate with a Bearer API key.
+  termsOfService: https://www.linkup.so/terms-of-service
+  contact:
+    name: Linkup
+    url: https://www.linkup.so
+  version: '1.0'
+servers:
+- url: https://api.linkup.so/v1
+security:
+- bearerAuth: []
+tags:
+- name: Credits
+paths:
+  /credits/balance:
+    get:
+      operationId: getCreditsBalance
+      tags:
+      - Credits
+      summary: Retrieve the remaining credits balance for the account.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BalanceResponse'
+        '401':
+          description: Unauthorized
+components:
+  schemas:
+    BalanceResponse:
+      type: object
+      properties:
+        balance:
+          type: number
+          description: The number of credits remaining in your account.
+          example: 123.456
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Pass your Linkup API key as `Authorization: Bearer <API_KEY>`.'

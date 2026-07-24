@@ -1,0 +1,120 @@
+openapi: 3.0.1
+info:
+  title: Linkup Credits Research API
+  description: Production-grade web search and answer API for AI agents and LLMs. The /search endpoint grounds model responses in real-time web context, returning ranked results, sourced answers with inline citations, or schema-driven structured output. /fetch converts a URL into clean LLM-ready markdown, /research starts an asynchronous deep-research task, and /credits/balance reports remaining account credits. All endpoints authenticate with a Bearer API key.
+  termsOfService: https://www.linkup.so/terms-of-service
+  contact:
+    name: Linkup
+    url: https://www.linkup.so
+  version: '1.0'
+servers:
+- url: https://api.linkup.so/v1
+security:
+- bearerAuth: []
+tags:
+- name: Research
+paths:
+  /research:
+    post:
+      operationId: createResearch
+      tags:
+      - Research
+      summary: Start an asynchronous deep-research task (beta).
+      description: Starts an autonomous web investigation. Returns immediately with a task id and a non-terminal status; poll GET /research/{id} until the task reaches a terminal state to retrieve the synthesized, cited result.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResearchRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResearchTask'
+        '401':
+          description: Unauthorized
+        '402':
+          description: Payment Required (insufficient credits)
+        '429':
+          description: Too Many Requests
+  /research/{id}:
+    get:
+      operationId: getResearch
+      tags:
+      - Research
+      summary: Retrieve the state and result of a research task.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Identifier of the research task.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResearchTask'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not Found
+        '429':
+          description: Too Many Requests
+components:
+  schemas:
+    ResearchTask:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Identifier of the research task.
+        status:
+          type: string
+          enum:
+          - pending
+          - processing
+          - completed
+          - failed
+          description: Current state of the task.
+        output:
+          type: object
+          description: The synthesized, cited result when status is `completed`.
+        error:
+          type: string
+          description: Failure reason when status is `failed`.
+    ResearchRequest:
+      type: object
+      required:
+      - query
+      properties:
+        query:
+          type: string
+          description: Natural-language research question.
+        mode:
+          type: string
+          enum:
+          - answer
+          - investigate
+          - research
+          description: Type of investigation. Omit to let Linkup classify the question.
+        reasoningDepth:
+          type: string
+          enum:
+          - S
+          - M
+          - L
+          - XL
+          default: L
+          description: How much reasoning effort the task spends.
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Pass your Linkup API key as `Authorization: Bearer <API_KEY>`.'
