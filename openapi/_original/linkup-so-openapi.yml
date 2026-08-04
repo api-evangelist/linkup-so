@@ -1,0 +1,364 @@
+openapi: 3.0.1
+info:
+  title: Linkup API
+  description: >-
+    Production-grade web search and answer API for AI agents and LLMs. The
+    /search endpoint grounds model responses in real-time web context, returning
+    ranked results, sourced answers with inline citations, or schema-driven
+    structured output. /fetch converts a URL into clean LLM-ready markdown,
+    /research starts an asynchronous deep-research task, and /credits/balance
+    reports remaining account credits. All endpoints authenticate with a Bearer
+    API key.
+  termsOfService: https://www.linkup.so/terms-of-service
+  contact:
+    name: Linkup
+    url: https://www.linkup.so
+  version: '1.0'
+servers:
+  - url: https://api.linkup.so/v1
+security:
+  - bearerAuth: []
+paths:
+  /search:
+    post:
+      operationId: search
+      tags:
+        - Search
+      summary: Run a web search and return context for an AI agent or LLM.
+      description: >-
+        Runs a natural-language query against the live web at fast, standard, or
+        deep precision and returns ranked search results, a sourced answer with
+        optional inline citations, or schema-driven structured output.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '402':
+          description: Payment Required (insufficient credits)
+        '429':
+          description: Too Many Requests
+  /fetch:
+    post:
+      operationId: fetch
+      tags:
+        - Fetch
+      summary: Fetch a URL as clean LLM-ready markdown.
+      description: >-
+        Retrieves the content of a given URL and returns it as clean markdown,
+        with options to render JavaScript, include raw HTML, and extract images.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FetchRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FetchResponse'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '402':
+          description: Payment Required (insufficient credits)
+        '429':
+          description: Too Many Requests
+  /research:
+    post:
+      operationId: createResearch
+      tags:
+        - Research
+      summary: Start an asynchronous deep-research task (beta).
+      description: >-
+        Starts an autonomous web investigation. Returns immediately with a task
+        id and a non-terminal status; poll GET /research/{id} until the task
+        reaches a terminal state to retrieve the synthesized, cited result.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResearchRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResearchTask'
+        '401':
+          description: Unauthorized
+        '402':
+          description: Payment Required (insufficient credits)
+        '429':
+          description: Too Many Requests
+  /research/{id}:
+    get:
+      operationId: getResearch
+      tags:
+        - Research
+      summary: Retrieve the state and result of a research task.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Identifier of the research task.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResearchTask'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not Found
+        '429':
+          description: Too Many Requests
+  /credits/balance:
+    get:
+      operationId: getCreditsBalance
+      tags:
+        - Credits
+      summary: Retrieve the remaining credits balance for the account.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BalanceResponse'
+        '401':
+          description: Unauthorized
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Pass your Linkup API key as `Authorization: Bearer <API_KEY>`.'
+  schemas:
+    SearchRequest:
+      type: object
+      required:
+        - q
+        - depth
+        - outputType
+      properties:
+        q:
+          type: string
+          description: Natural-language question used to retrieve web context.
+        depth:
+          type: string
+          enum:
+            - fast
+            - standard
+            - deep
+          description: Search precision mode.
+        outputType:
+          type: string
+          enum:
+            - searchResults
+            - sourcedAnswer
+            - structured
+          description: Shape of the returned payload.
+        structuredOutputSchema:
+          type: string
+          description: >-
+            JSON Schema (as a string) describing the desired structured output.
+            Required when outputType is `structured`.
+        includeImages:
+          type: boolean
+          default: false
+          description: Include images in the results.
+        includeInlineCitations:
+          type: boolean
+          default: false
+          description: Include inline citations. Applies only to `sourcedAnswer`.
+        includeSources:
+          type: boolean
+          default: false
+          description: Include sources. Applies only to `structured`.
+        fromDate:
+          type: string
+          format: date
+          description: Restrict results to this date forward (YYYY-MM-DD).
+        toDate:
+          type: string
+          format: date
+          description: Restrict results up to this date (YYYY-MM-DD).
+        includeDomains:
+          type: array
+          items:
+            type: string
+          description: Restrict the search to these domains (max 100).
+        excludeDomains:
+          type: array
+          items:
+            type: string
+          description: Exclude these domains from the search.
+        maxResults:
+          type: integer
+          minimum: 1
+          description: Maximum number of results to return.
+    SearchResponse:
+      type: object
+      description: >-
+        Shape varies by outputType. For `searchResults`, an array of results;
+        for `sourcedAnswer`, an answer plus sources; for `structured`, a custom
+        object optionally accompanied by sources.
+      properties:
+        answer:
+          type: string
+          description: The sourced answer (outputType `sourcedAnswer`).
+        results:
+          type: array
+          description: Ranked search results (outputType `searchResults`).
+          items:
+            $ref: '#/components/schemas/SearchResult'
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/Source'
+    SearchResult:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - text
+            - image
+        name:
+          type: string
+        url:
+          type: string
+          format: uri
+        content:
+          type: string
+    Source:
+      type: object
+      properties:
+        name:
+          type: string
+        url:
+          type: string
+          format: uri
+        snippet:
+          type: string
+    FetchRequest:
+      type: object
+      required:
+        - url
+      properties:
+        url:
+          type: string
+          format: uri
+          description: The URL of the webpage to fetch.
+        renderJs:
+          type: boolean
+          default: false
+          description: Whether the API should render the JavaScript of the webpage.
+        includeRawHtml:
+          type: boolean
+          default: false
+          description: Whether to include the raw HTML of the webpage in the response.
+        extractImages:
+          type: boolean
+          default: false
+          description: Whether to extract images from the webpage in the response.
+    FetchResponse:
+      type: object
+      required:
+        - markdown
+      properties:
+        markdown:
+          type: string
+          description: The webpage content as clean markdown.
+        rawHtml:
+          type: string
+          description: The raw HTML of the webpage (when includeRawHtml is true).
+        images:
+          type: array
+          items:
+            type: object
+            required:
+              - alt
+              - url
+            properties:
+              alt:
+                type: string
+              url:
+                type: string
+                format: uri
+    ResearchRequest:
+      type: object
+      required:
+        - query
+      properties:
+        query:
+          type: string
+          description: Natural-language research question.
+        mode:
+          type: string
+          enum:
+            - answer
+            - investigate
+            - research
+          description: >-
+            Type of investigation. Omit to let Linkup classify the question.
+        reasoningDepth:
+          type: string
+          enum:
+            - S
+            - M
+            - L
+            - XL
+          default: L
+          description: How much reasoning effort the task spends.
+    ResearchTask:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Identifier of the research task.
+        status:
+          type: string
+          enum:
+            - pending
+            - processing
+            - completed
+            - failed
+          description: Current state of the task.
+        output:
+          type: object
+          description: The synthesized, cited result when status is `completed`.
+        error:
+          type: string
+          description: Failure reason when status is `failed`.
+    BalanceResponse:
+      type: object
+      properties:
+        balance:
+          type: number
+          description: The number of credits remaining in your account.
+          example: 123.456
