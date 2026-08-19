@@ -1,0 +1,39 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Linkup Credits Fetch API",
+    "version": "1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Fetch",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Fetch a URL as clean LLM-ready markdown.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.linkup.so/v1/fetch",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Retrieves the content of a given URL and returns it as clean markdown, with options to render JavaScript, include raw HTML, and extract images."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

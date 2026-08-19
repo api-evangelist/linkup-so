@@ -1,0 +1,328 @@
+{
+  "item": [
+    {
+      "id": "611cd132-85e1-43ab-94a3-df5d4161833d",
+      "name": "Search",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "ce827575-d71c-4612-98e2-8b061336e76e",
+          "name": "Run a web search and return context for an AI agent or LLM.",
+          "request": {
+            "name": "Run a web search and return context for an AI agent or LLM.",
+            "description": {
+              "content": "Runs a natural-language query against the live web at fast, standard, or deep precision and returns ranked search results, a sourced answer with optional inline citations, or schema-driven structured output.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "search"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"q\": \"<string>\",\n  \"depth\": \"<string>\",\n  \"outputType\": \"<string>\",\n  \"structuredOutputSchema\": \"<string>\",\n  \"includeImages\": false,\n  \"includeInlineCitations\": false,\n  \"includeSources\": false,\n  \"fromDate\": \"<date>\",\n  \"toDate\": \"<date>\",\n  \"includeDomains\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"excludeDomains\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"maxResults\": \"<integer>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "bcf29b70-1c86-4907-aab7-0b47a6995e07",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "search"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"q\": \"<string>\",\n  \"depth\": \"<string>\",\n  \"outputType\": \"<string>\",\n  \"structuredOutputSchema\": \"<string>\",\n  \"includeImages\": false,\n  \"includeInlineCitations\": false,\n  \"includeSources\": false,\n  \"fromDate\": \"<date>\",\n  \"toDate\": \"<date>\",\n  \"includeDomains\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"excludeDomains\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"maxResults\": \"<integer>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"answer\": \"string\",\n  \"results\": [\n    {\n      \"type\": \"image\",\n      \"name\": \"string\",\n      \"url\": \"https://oorxgLs.phvkkxOINlB3EPPXC,4BCASxfENZF\",\n      \"content\": \"string\"\n    },\n    {\n      \"type\": \"image\",\n      \"name\": \"string\",\n      \"url\": \"http://WkSLwOkrAXpes.phprWiJfI-NNWXlaJt4LfnKGfgIt8Utjfhu6uYNTTFX3Mc0cZM\",\n      \"content\": \"string\"\n    }\n  ],\n  \"sources\": [\n    {\n      \"name\": \"string\",\n      \"url\": \"https://lyNvJqxLmRPitIvIPxXvmPjEFW.fxpLP-saN0PypfJNN5IrQRDIeU,VETm.QwYWrlBIM3Bjvw5l+Zv5oZ48a5queIRfZ,B\",\n      \"snippet\": \"string\"\n    },\n    {\n      \"name\": \"string\",\n      \"url\": \"https://IYcDeiWCnPtLLwFgBGLwCQjYeD.tzwxswIWQRXz75tpzSAtp-4PJOSYA7A.aU7rHY.q3UCmE1IJ2otYDtqViNNzwrGXk99w\",\n      \"snippet\": \"string\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "11050b37-7f29-435f-9259-eab371457225",
+              "name": "Bad Request",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "search"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"q\": \"<string>\",\n  \"depth\": \"<string>\",\n  \"outputType\": \"<string>\",\n  \"structuredOutputSchema\": \"<string>\",\n  \"includeImages\": false,\n  \"includeInlineCitations\": false,\n  \"includeSources\": false,\n  \"fromDate\": \"<date>\",\n  \"toDate\": \"<date>\",\n  \"includeDomains\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"excludeDomains\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"maxResults\": \"<integer>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "c387d9fc-ad5b-4e22-baa0-d1e5c3821c88",
+              "name": "Unauthorized",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "search"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"q\": \"<string>\",\n  \"depth\": \"<string>\",\n  \"outputType\": \"<string>\",\n  \"structuredOutputSchema\": \"<string>\",\n  \"includeImages\": false,\n  \"includeInlineCitations\": false,\n  \"includeSources\": false,\n  \"fromDate\": \"<date>\",\n  \"toDate\": \"<date>\",\n  \"includeDomains\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"excludeDomains\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"maxResults\": \"<integer>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "b1cfccfb-4b0f-4d2c-8ab3-a8d59e5124a6",
+              "name": "Payment Required (insufficient credits)",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "search"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"q\": \"<string>\",\n  \"depth\": \"<string>\",\n  \"outputType\": \"<string>\",\n  \"structuredOutputSchema\": \"<string>\",\n  \"includeImages\": false,\n  \"includeInlineCitations\": false,\n  \"includeSources\": false,\n  \"fromDate\": \"<date>\",\n  \"toDate\": \"<date>\",\n  \"includeDomains\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"excludeDomains\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"maxResults\": \"<integer>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Payment Required",
+              "code": 402,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "52e86134-25e2-4928-826d-80002b23fd0c",
+              "name": "Too Many Requests",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "search"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"q\": \"<string>\",\n  \"depth\": \"<string>\",\n  \"outputType\": \"<string>\",\n  \"structuredOutputSchema\": \"<string>\",\n  \"includeImages\": false,\n  \"includeInlineCitations\": false,\n  \"includeSources\": false,\n  \"fromDate\": \"<date>\",\n  \"toDate\": \"<date>\",\n  \"includeDomains\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"excludeDomains\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"maxResults\": \"<integer>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.linkup.so/v1",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "eb49a62c-44b6-4eb9-82e3-72fa6723db26",
+    "name": "Linkup Credits Search API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Production-grade web search and answer API for AI agents and LLMs. The /search endpoint grounds model responses in real-time web context, returning ranked results, sourced answers with inline citations, or schema-driven structured output. /fetch converts a URL into clean LLM-ready markdown, /research starts an asynchronous deep-research task, and /credits/balance reports remaining account credits. All endpoints authenticate with a Bearer API key.\n\nContact Support:\n Name: Linkup",
+      "type": "text/plain"
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Linkup Credits Research API",
+    "version": "1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Research",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Start an asynchronous deep-research task (beta).",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.linkup.so/v1/research",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Starts an autonomous web investigation. Returns immediately with a task id and a non-terminal status; poll GET /research/{id} until the task reaches a terminal state to retrieve the synthesized, cited result."
+        },
+        {
+          "info": {
+            "name": "Retrieve the state and result of a research task.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.linkup.so/v1/research/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "Identifier of the research task."
+              }
+            ]
+          },
+          "docs": "Retrieve the state and result of a research task."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}
