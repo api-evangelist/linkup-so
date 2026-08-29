@@ -7,6 +7,18 @@ description: Linkup is a production-grade web search and answer API for AI agent
   ranked results, sourced answers with citations, or structured output, plus /fetch
   for clean LLM-ready markdown, an async /research endpoint, and a credits balance
   endpoint - all authenticated with a Bearer API key.
+deliveryModel:
+  model: saas
+  open_source: false
+  commercial: true
+  callable_host: true
+  label: Hosted service · you call their endpoint
+  confidence: high
+  source:
+  - openapi
+  - pricing
+  generated: '2026-08-28'
+  method: derived
 accessModel:
   pricing: freemium
   onboarding: self-serve
