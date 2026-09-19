@@ -55,6 +55,8 @@ apis:
   humanURL: https://docs.linkup.so/pages/documentation/api-reference/endpoint/post-search
   baseURL: https://api.linkup.so/v1
   tags:
+  - Credit
+  tags_raw:
   - Credits
   properties:
   - type: OpenAPI
