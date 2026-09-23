@@ -1,4 +1,4 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
   title: Linkup Credits API
   description: Production-grade web search and answer API for AI agents and LLMs. The /search endpoint grounds model responses in real-time web context, returning ranked results, sourced answers with inline citations, or schema-driven structured output. /fetch converts a URL into clean LLM-ready markdown, /research starts an asynchronous deep-research task, and /credits/balance reports remaining account credits. All endpoints authenticate with a Bearer API key.
@@ -19,7 +19,7 @@ paths:
       operationId: getCreditsBalance
       tags:
       - Credits
-      summary: Retrieve the remaining credits balance for the account.
+      summary: Retrieve the remaining credits balance for the account
       responses:
         '200':
           description: OK

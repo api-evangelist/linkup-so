@@ -1,6 +1,6 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: Linkup Credits Search API
+  title: Linkup Search API
   description: Production-grade web search and answer API for AI agents and LLMs. The /search endpoint grounds model responses in real-time web context, returning ranked results, sourced answers with inline citations, or schema-driven structured output. /fetch converts a URL into clean LLM-ready markdown, /research starts an asynchronous deep-research task, and /credits/balance reports remaining account credits. All endpoints authenticate with a Bearer API key.
   termsOfService: https://www.linkup.so/terms-of-service
   contact:
@@ -19,7 +19,7 @@ paths:
       operationId: search
       tags:
       - Search
-      summary: Run a web search and return context for an AI agent or LLM.
+      summary: Run a web search and return context for an AI agent or LLM
       description: Runs a natural-language query against the live web at fast, standard, or deep precision and returns ranked search results, a sourced answer with optional inline citations, or schema-driven structured output.
       requestBody:
         required: true
@@ -54,6 +54,37 @@ components:
           format: uri
         snippet:
           type: string
+    SearchResult:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - text
+          - image
+        name:
+          type: string
+        url:
+          type: string
+          format: uri
+        content:
+          type: string
+    SearchResponse:
+      type: object
+      description: Shape varies by outputType. For `searchResults`, an array of results; for `sourcedAnswer`, an answer plus sources; for `structured`, a custom object optionally accompanied by sources.
+      properties:
+        answer:
+          type: string
+          description: The sourced answer (outputType `sourcedAnswer`).
+        results:
+          type: array
+          description: Ranked search results (outputType `searchResults`).
+          items:
+            $ref: '#/components/schemas/SearchResult'
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/Source'
     SearchRequest:
       type: object
       required:
@@ -115,37 +146,6 @@ components:
           type: integer
           minimum: 1
           description: Maximum number of results to return.
-    SearchResponse:
-      type: object
-      description: Shape varies by outputType. For `searchResults`, an array of results; for `sourcedAnswer`, an answer plus sources; for `structured`, a custom object optionally accompanied by sources.
-      properties:
-        answer:
-          type: string
-          description: The sourced answer (outputType `sourcedAnswer`).
-        results:
-          type: array
-          description: Ranked search results (outputType `searchResults`).
-          items:
-            $ref: '#/components/schemas/SearchResult'
-        sources:
-          type: array
-          items:
-            $ref: '#/components/schemas/Source'
-    SearchResult:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-          - text
-          - image
-        name:
-          type: string
-        url:
-          type: string
-          format: uri
-        content:
-          type: string
   securitySchemes:
     bearerAuth:
       type: http

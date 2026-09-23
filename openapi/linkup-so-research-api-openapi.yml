@@ -1,6 +1,6 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: Linkup Credits Research API
+  title: Linkup Research API
   description: Production-grade web search and answer API for AI agents and LLMs. The /search endpoint grounds model responses in real-time web context, returning ranked results, sourced answers with inline citations, or schema-driven structured output. /fetch converts a URL into clean LLM-ready markdown, /research starts an asynchronous deep-research task, and /credits/balance reports remaining account credits. All endpoints authenticate with a Bearer API key.
   termsOfService: https://www.linkup.so/terms-of-service
   contact:
@@ -19,7 +19,7 @@ paths:
       operationId: createResearch
       tags:
       - Research
-      summary: Start an asynchronous deep-research task (beta).
+      summary: Start an asynchronous deep-research task (beta)
       description: Starts an autonomous web investigation. Returns immediately with a task id and a non-terminal status; poll GET /research/{id} until the task reaches a terminal state to retrieve the synthesized, cited result.
       requestBody:
         required: true
@@ -45,7 +45,7 @@ paths:
       operationId: getResearch
       tags:
       - Research
-      summary: Retrieve the state and result of a research task.
+      summary: Retrieve the state and result of a research task
       parameters:
       - name: id
         in: path
