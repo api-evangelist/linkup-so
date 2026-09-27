@@ -54,21 +54,6 @@ components:
           format: uri
         snippet:
           type: string
-    SearchResult:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-          - text
-          - image
-        name:
-          type: string
-        url:
-          type: string
-          format: uri
-        content:
-          type: string
     SearchResponse:
       type: object
       description: Shape varies by outputType. For `searchResults`, an array of results; for `sourcedAnswer`, an answer plus sources; for `structured`, a custom object optionally accompanied by sources.
@@ -85,6 +70,21 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Source'
+    SearchResult:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - text
+          - image
+        name:
+          type: string
+        url:
+          type: string
+          format: uri
+        content:
+          type: string
     SearchRequest:
       type: object
       required:
