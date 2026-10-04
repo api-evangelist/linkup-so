@@ -105,16 +105,6 @@ components:
           type: integer
           minimum: 1
           description: Maximum number of results to return.
-    Source:
-      type: object
-      properties:
-        name:
-          type: string
-        url:
-          type: string
-          format: uri
-        snippet:
-          type: string
     SearchResult:
       type: object
       properties:
@@ -129,6 +119,16 @@ components:
           type: string
           format: uri
         content:
+          type: string
+    Source:
+      type: object
+      properties:
+        name:
+          type: string
+        url:
+          type: string
+          format: uri
+        snippet:
           type: string
     SearchResponse:
       type: object

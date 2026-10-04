@@ -44,27 +44,6 @@ paths:
           description: Too Many Requests
 components:
   schemas:
-    FetchRequest:
-      type: object
-      required:
-      - url
-      properties:
-        url:
-          type: string
-          format: uri
-          description: The URL of the webpage to fetch.
-        renderJs:
-          type: boolean
-          default: false
-          description: Whether the API should render the JavaScript of the webpage.
-        includeRawHtml:
-          type: boolean
-          default: false
-          description: Whether to include the raw HTML of the webpage in the response.
-        extractImages:
-          type: boolean
-          default: false
-          description: Whether to extract images from the webpage in the response.
     FetchResponse:
       type: object
       required:
@@ -89,6 +68,27 @@ components:
               url:
                 type: string
                 format: uri
+    FetchRequest:
+      type: object
+      required:
+      - url
+      properties:
+        url:
+          type: string
+          format: uri
+          description: The URL of the webpage to fetch.
+        renderJs:
+          type: boolean
+          default: false
+          description: Whether the API should render the JavaScript of the webpage.
+        includeRawHtml:
+          type: boolean
+          default: false
+          description: Whether to include the raw HTML of the webpage in the response.
+        extractImages:
+          type: boolean
+          default: false
+          description: Whether to extract images from the webpage in the response.
   securitySchemes:
     bearerAuth:
       type: http

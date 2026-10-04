@@ -68,26 +68,6 @@ paths:
           description: Too Many Requests
 components:
   schemas:
-    ResearchTask:
-      type: object
-      properties:
-        id:
-          type: string
-          description: Identifier of the research task.
-        status:
-          type: string
-          enum:
-          - pending
-          - processing
-          - completed
-          - failed
-          description: Current state of the task.
-        output:
-          type: object
-          description: The synthesized, cited result when status is `completed`.
-        error:
-          type: string
-          description: Failure reason when status is `failed`.
     ResearchRequest:
       type: object
       required:
@@ -112,6 +92,26 @@ components:
           - XL
           default: L
           description: How much reasoning effort the task spends.
+    ResearchTask:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Identifier of the research task.
+        status:
+          type: string
+          enum:
+          - pending
+          - processing
+          - completed
+          - failed
+          description: Current state of the task.
+        output:
+          type: object
+          description: The synthesized, cited result when status is `completed`.
+        error:
+          type: string
+          description: Failure reason when status is `failed`.
   securitySchemes:
     bearerAuth:
       type: http
