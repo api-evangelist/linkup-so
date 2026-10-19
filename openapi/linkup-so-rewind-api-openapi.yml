@@ -1,0 +1,201 @@
+openapi: 3.2.0
+info:
+  title: Linkup Rewind API
+  description: Search the web in real time to get trustworthy, source-backed answers. Find the latest news and comprehensive results from the most relevant sources. Use natural language queries to quickly gather facts, citations, and context.
+  version: '1.0'
+  contact: {}
+servers:
+- url: https://api.linkup.so
+tags:
+- name: Rewind
+paths:
+  /v1/rewind/search:
+    post:
+      description: '[BETA] The `/rewind/search` endpoint searches the web as it was by the end of a given UTC day.'
+      operationId: rewindSearch
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RewindSearchInput'
+      responses:
+        '200':
+          description: Pages visible on the requested day.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RewindSearchOutput_Output'
+        '400':
+          description: Bad Request - Invalid parameters
+        '403':
+          description: Forbidden - Rewind is not enabled for this organization.
+        '429':
+          description: Too Many Requests - Rate limit exceeded or insufficient credits
+      security:
+      - bearer: []
+      summary: /rewind/search
+      tags:
+      - Rewind
+  /v1/rewind/fetch:
+    post:
+      description: '[BETA] The `/rewind/fetch` endpoint returns a page as it was by the end of a given UTC day.'
+      operationId: rewindFetch
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RewindFetchInput'
+      responses:
+        '200':
+          description: The revision of the page visible on the requested day.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RewindFetchOutput_Output'
+        '400':
+          description: Bad Request - Invalid parameters
+        '403':
+          description: Forbidden - Rewind is not enabled for this organization.
+        '404':
+          description: No revision of the URL is visible on the requested day.
+        '422':
+          description: Unprocessable - Rewind is not available for the requested day.
+        '429':
+          description: Too Many Requests - Rate limit exceeded or insufficient credits
+      security:
+      - bearer: []
+      summary: /rewind/fetch
+      tags:
+      - Rewind
+components:
+  schemas:
+    RewindSearchOutput_Output:
+      type: object
+      properties:
+        asOf:
+          type: string
+          format: date
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+          description: The UTC day the results were searched as of.
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              content:
+                type: string
+                description: The text of the revision visible on asOf.
+              name:
+                type: string
+                description: The title of the matching page.
+              url:
+                type: string
+                description: The URL of the matching page.
+                format: uri
+              validFrom:
+                type: string
+                format: date
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+                description: The first UTC day this revision is visible.
+              validTo:
+                anyOf:
+                - type: string
+                  format: date
+                  pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+                - type: 'null'
+                description: The first UTC day this revision is no longer visible. Null when still current.
+            required:
+            - content
+            - name
+            - url
+            - validFrom
+            - validTo
+            additionalProperties: false
+      required:
+      - asOf
+      - results
+      id: RewindSearchOutput_Output
+      additionalProperties: false
+    RewindFetchInput:
+      type: object
+      properties:
+        asOf:
+          type: string
+          format: date
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+          description: The UTC day to fetch the page as of, in YYYY-MM-DD format.
+          example: '2026-03-12'
+        url:
+          type: string
+          format: uri
+          description: 'The URL of the page to fetch. It must match the stored URL exactly: no normalization is applied.'
+          example: https://example.com/a
+      required:
+      - asOf
+      - url
+      id: RewindFetchInput
+    RewindFetchOutput_Output:
+      type: object
+      properties:
+        asOf:
+          type: string
+          format: date
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+          description: The UTC day the page was fetched as of.
+        content:
+          type: string
+          description: The full text of the revision visible on asOf.
+        name:
+          type: string
+          description: The title of the page.
+        url:
+          type: string
+          description: The URL of the page.
+          format: uri
+        validFrom:
+          type: string
+          format: date
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+          description: The first UTC day this revision is visible.
+        validTo:
+          anyOf:
+          - type: string
+            format: date
+            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+          - type: 'null'
+          description: The first UTC day this revision is no longer visible. Null when still current.
+      required:
+      - asOf
+      - content
+      - name
+      - url
+      - validFrom
+      - validTo
+      id: RewindFetchOutput_Output
+      additionalProperties: false
+    RewindSearchInput:
+      type: object
+      properties:
+        asOf:
+          type: string
+          format: date
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+          description: The UTC day to search as of, in YYYY-MM-DD format.
+          example: '2026-03-12'
+        q:
+          description: The search query.
+          example: Donald Trump
+          type: string
+      required:
+      - asOf
+      - q
+      id: RewindSearchInput
+  securitySchemes:
+    bearer:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http

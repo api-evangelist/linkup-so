@@ -1,97 +1,171 @@
 openapi: 3.2.0
 info:
   title: Linkup Fetch API
-  description: Production-grade web search and answer API for AI agents and LLMs. The /search endpoint grounds model responses in real-time web context, returning ranked results, sourced answers with inline citations, or schema-driven structured output. /fetch converts a URL into clean LLM-ready markdown, /research starts an asynchronous deep-research task, and /credits/balance reports remaining account credits. All endpoints authenticate with a Bearer API key.
-  termsOfService: https://www.linkup.so/terms-of-service
-  contact:
-    name: Linkup
-    url: https://www.linkup.so
+  description: Search the web in real time to get trustworthy, source-backed answers. Find the latest news and comprehensive results from the most relevant sources. Use natural language queries to quickly gather facts, citations, and context.
   version: '1.0'
+  contact: {}
 servers:
-- url: https://api.linkup.so/v1
-security:
-- bearerAuth: []
+- url: https://api.linkup.so
 tags:
 - name: Fetch
 paths:
-  /fetch:
+  /v1/fetch:
     post:
+      description: The `/fetch` endpoint allows you to fetch a single webpage from a given URL.
       operationId: fetch
-      tags:
-      - Fetch
-      summary: Fetch a URL as clean LLM-ready markdown
-      description: Retrieves the content of a given URL and returns it as clean markdown, with options to render JavaScript, include raw HTML, and extract images.
+      parameters: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/FetchRequest'
+              $ref: '#/components/schemas/FetchInput'
       responses:
         '200':
-          description: OK
+          description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FetchResponse'
+                $ref: '#/components/schemas/FetchOutput_Output'
         '400':
-          description: Bad Request
+          description: Bad Request - Invalid parameters
         '401':
-          description: Unauthorized
+          description: Unauthorized - Invalid or missing API key
         '402':
-          description: Payment Required (insufficient credits)
+          description: Payment Required - No API key provided. Returns x402 payment details in the `payment-required` header for pay-per-request with USDC.
         '429':
-          description: Too Many Requests
+          description: Too Many Requests - Rate limit exceeded or insufficient credits
+      security:
+      - bearer: []
+      summary: /fetch
+      tags:
+      - Fetch
 components:
   schemas:
-    FetchRequest:
+    FetchInput:
       type: object
+      properties:
+        extractImages:
+          default: false
+          description: Defines whether the API should extract the images from the webpage in its response.
+          example: false
+          anyOf:
+          - type: boolean
+          - type: string
+        includeRawContent:
+          default: false
+          description: Defines whether the API should include the raw page content and its content type in the response.
+          example: false
+          anyOf:
+          - type: boolean
+          - type: string
+        includeRawHtml:
+          default: false
+          deprecated: true
+          description: Deprecated. Use includeRawContent instead. Defines whether rawHtml is returned for non-LinkedIn HTML pages.
+          example: false
+          anyOf:
+          - type: boolean
+          - type: string
+        renderJs:
+          default: false
+          description: Defines whether the API should render the JavaScript of the webpage.
+          example: false
+          anyOf:
+          - type: boolean
+          - type: string
+        mode:
+          default: standard
+          description: Defines the fetch strategy. Pro fetch delivers significantly higher success rates on hard-to-retrieve pages.
+          example: standard
+          type: string
+          enum:
+          - standard
+          - pro
+        instructions:
+          description: Optional instructions that guide how data is extracted. Requires schema.
+          example: Use public list prices only and express monetary values in USD.
+          type: string
+        schema:
+          default: null
+          format: json
+          description: Optional JSON Schema of type object describing the structured data to extract from the page. Fields with no grounded value are omitted, even when marked as required.
+        url:
+          description: The URL of the webpage you want to fetch.
+          example: https://docs.linkup.so
+          format: uri
+          type: string
       required:
       - url
+      id: FetchInput
+    FetchOutput_Output:
+      type: object
       properties:
-        url:
+        contentType:
+          description: The type of rawContent. Present only when rawContent is returned.
+          example: html
+          type: string
+        data:
+          description: Structured data extracted from the webpage. Present only when schema is provided; fields with no grounded value are omitted.
+          example:
+            name: Example product
+            price: 49
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties: {}
+        favicon:
           type: string
           format: uri
-          description: The URL of the webpage to fetch.
-        renderJs:
-          type: boolean
-          default: false
-          description: Whether the API should render the JavaScript of the webpage.
-        includeRawHtml:
-          type: boolean
-          default: false
-          description: Whether to include the raw HTML of the webpage in the response.
-        extractImages:
-          type: boolean
-          default: false
-          description: Whether to extract images from the webpage in the response.
-    FetchResponse:
-      type: object
-      required:
-      - markdown
-      properties:
-        markdown:
-          type: string
-          description: The webpage content as clean markdown.
-        rawHtml:
-          type: string
-          description: The raw HTML of the webpage (when includeRawHtml is true).
+          description: The URL of the website favicon.
+          example: https://favicons.linkup.so?domain=docs.linkup.so
         images:
+          description: List of images extracted from the webpage.
+          example:
+          - alt: Image 1
+            url: https://example.com/image.jpg
+          - alt: Image 2
+            url: https://example.com/image2.jpg
           type: array
           items:
-            type: object
-            required:
-            - alt
-            - url
-            properties:
-              alt:
-                type: string
-              url:
-                type: string
-                format: uri
+            $ref: '#/components/schemas/FetchImageOutput_Output'
+        markdown:
+          type: string
+          description: The clean markdown version of the webpage.
+          example: Get started for free, no credit card required...
+        rawContent:
+          description: The raw page content.
+          example: <!DOCTYPE html><html lang="en"><head>...</head><body>...</body></html>
+          type: string
+        rawHtml:
+          deprecated: true
+          description: The raw HTML version of the webpage.
+          example: <!DOCTYPE html><html lang="en"><head>...</head><body>...</body></html>
+          type: string
+      required:
+      - favicon
+      - markdown
+      additionalProperties: false
+      id: FetchOutput_Output
+    FetchImageOutput_Output:
+      type: object
+      properties:
+        alt:
+          type: string
+          description: The alt text of the image.
+          example: Image description
+        url:
+          type: string
+          description: The URL of the image.
+          example: https://example.com/image.jpg
+          format: uri
+      required:
+      - alt
+      - url
+      additionalProperties: false
+      id: FetchImageOutput_Output
   securitySchemes:
-    bearerAuth:
-      type: http
+    bearer:
       scheme: bearer
       bearerFormat: JWT
-      description: 'Pass your Linkup API key as `Authorization: Bearer <API_KEY>`.'
+      type: http

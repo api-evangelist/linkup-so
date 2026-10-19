@@ -1,120 +1,636 @@
 openapi: 3.2.0
 info:
   title: Linkup Research API
-  description: Production-grade web search and answer API for AI agents and LLMs. The /search endpoint grounds model responses in real-time web context, returning ranked results, sourced answers with inline citations, or schema-driven structured output. /fetch converts a URL into clean LLM-ready markdown, /research starts an asynchronous deep-research task, and /credits/balance reports remaining account credits. All endpoints authenticate with a Bearer API key.
-  termsOfService: https://www.linkup.so/terms-of-service
-  contact:
-    name: Linkup
-    url: https://www.linkup.so
+  description: Search the web in real time to get trustworthy, source-backed answers. Find the latest news and comprehensive results from the most relevant sources. Use natural language queries to quickly gather facts, citations, and context.
   version: '1.0'
+  contact: {}
 servers:
-- url: https://api.linkup.so/v1
-security:
-- bearerAuth: []
+- url: https://api.linkup.so
 tags:
 - name: Research
 paths:
-  /research:
+  /v1/research:
     post:
+      description: The `POST /research` method creates an asynchronous research task which can perform a comprehensive web research.
       operationId: createResearch
-      tags:
-      - Research
-      summary: Start an asynchronous deep-research task (beta)
-      description: Starts an autonomous web investigation. Returns immediately with a task id and a non-terminal status; poll GET /research/{id} until the task reaches a terminal state to retrieve the synthesized, cited result.
+      parameters: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ResearchRequest'
+              $ref: '#/components/schemas/PostResearchInput'
       responses:
         '200':
-          description: OK
+          description: Research task created successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResearchTask'
+                $ref: '#/components/schemas/PostResearchOutput_Output'
+        '400':
+          description: Bad Request - Invalid parameters
         '401':
-          description: Unauthorized
+          description: Unauthorized - Invalid or missing API key
         '402':
-          description: Payment Required (insufficient credits)
+          description: Payment Required - No API key provided. Returns x402 payment details in the `payment-required` header for pay-per-request with USDC.
         '429':
-          description: Too Many Requests
-  /research/{id}:
-    get:
-      operationId: getResearch
+          description: Too Many Requests - Rate limit exceeded or insufficient credits
+      security:
+      - bearer: []
+      summary: /research
       tags:
       - Research
-      summary: Retrieve the state and result of a research task
+    get:
+      description: The `GET /research` method, without research task identifier, lists all created research tasks for the authenticated organization, with pagination.
+      operationId: listResearch
       parameters:
-      - name: id
-        in: path
-        required: true
+      - name: page
+        required: false
+        in: query
         schema:
+          default: 1
+          minimum: 1
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          type: integer
+      - name: sortBy
+        required: false
+        in: query
+        schema:
+          enum:
+          - createdAt
+          - updatedAt
           type: string
-        description: Identifier of the research task.
+      - name: sortDirection
+        required: false
+        in: query
+        schema:
+          default: asc
+          enum:
+          - asc
+          - desc
+          type: string
       responses:
         '200':
-          description: OK
+          description: Paginated list of research tasks.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResearchTask'
+                $ref: '#/components/schemas/ListResearchOutput'
         '401':
-          description: Unauthorized
-        '404':
-          description: Not Found
-        '429':
-          description: Too Many Requests
+          description: Unauthorized - Invalid or missing API key
+      security:
+      - bearer: []
+      summary: /research
+      tags:
+      - Research
+  /v1/research/{id}:
+    get:
+      description: The `GET /research/:id` method, with research task identifier, retrieves a specific research task information.
+      operationId: getResearch
+      parameters:
+      - name: id
+        required: true
+        in: path
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Research task details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResearchTaskOutput'
+        '400':
+          description: Bad Request - Invalid parameters
+        '401':
+          description: Unauthorized - Invalid or missing API key
+      security:
+      - bearer: []
+      summary: /research/:id
+      tags:
+      - Research
 components:
   schemas:
-    ResearchTask:
+    PostResearchOutput_Output:
+      id: PostResearchOutput_Output
+      $ref: '#/components/schemas/ResearchTaskOutput_Output'
+    Source:
       type: object
       properties:
+        name:
+          type: string
+          description: The title or name of the resource.
+          example: Microsoft 2024 Annual Report
+        url:
+          type: string
+          description: The URL of the resource.
+          example: https://www.microsoft.com/investor/reports/ar24/index.html
+          format: uri
+        favicon:
+          anyOf:
+          - type: string
+            const: ''
+          - type: string
+            format: uri
+          description: The favicon URL, if available.
+          example: https://www.microsoft.com/favicon.ico
+          format: uri
+        snippet:
+          type: string
+          description: Extracted text content associated with the source.
+          example: Highlights from fiscal year 2024 compared with fiscal year 2023 included...
+      required:
+      - name
+      - url
+      - favicon
+      - snippet
+      id: Source
+    SourcedAnswerOutput_Output:
+      type: object
+      properties:
+        answer:
+          type: string
+          description: The answer to your question.
+          example: Microsoft's revenue for fiscal year 2024 was $245.1 billion, reflecting a 16% increase from the previous year.
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/Source_Output'
+          description: List of sources used to answer the question.
+          example:
+          - name: Microsoft 2024 Annual Report
+            snippet: 'Highlights from fiscal year 2024 compared with fiscal year 2023 included: Microsoft Cloud revenue increased 23% to $137.4 billion.'
+            url: https://www.microsoft.com/investor/reports/ar24/index.html
+      required:
+      - answer
+      - sources
+      additionalProperties: false
+      id: SourcedAnswerOutput_Output
+    ResearchSourcedAnswerOutput_Output:
+      example:
+        answer: '**Date:** May 19, 2026
+
+
+          ### 1. Executive Summary
+
+          The global semiconductor market has entered a period of unprecedented expansion in 2026, driven by an artificial intelligence "super-cycle" that is fundamentally restructuring industry supply and demand....'
+        sources:
+        - favicon: ''
+          name: Global Semiconductor Sales Increase 25% from Q4 2025 to Q1 2026 - Semiconductor Industry Association
+          snippet: Global semiconductor sales reached $298.5 billion during the first quarter of 2026, representing a 25% increase compared to the fourth quarter of 2025.
+          url: https://www.semiconductors.org/global-semiconductor-sales-increase-25-from-q4-2025-to-q1-2026/
+        - favicon: ''
+          name: Global Semiconductor Sales Increase 25% from Q4 2025 to Q1 2026 | SemiWiki
+          snippet: Global semiconductor sales in March 2026 were $99.5 billion, an increase of 79.2% compared to March 2025 and 11.5% more than February 2026.
+          url: https://semiwiki.com/forum/threads/global-semiconductor-sales-increase-25-from-q4-2025-to-q1-2026.25061/
+      id: ResearchSourcedAnswerOutput_Output
+      $ref: '#/components/schemas/SourcedAnswerOutput_Output'
+    ResearchTaskOutput_Output:
+      type: object
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+          description: The date and time when the task was created.
+          example: '2026-01-01T00:00:00.000Z'
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The error message if the task failed.
         id:
           type: string
-          description: Identifier of the research task.
+          description: The unique identifier of the task.
+          example: 01234-abcd-56789
         status:
           type: string
           enum:
-          - pending
-          - processing
           - completed
           - failed
-          description: Current state of the task.
+          - pending
+          - processing
+          description: The current status of the task.
+          example: completed
+        updatedAt:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+          description: The date and time when the task status was last updated.
+          example: '2026-01-01T00:00:00.000Z'
+        input:
+          $ref: '#/components/schemas/ResearchTaskInput_Output'
         output:
-          type: object
-          description: The synthesized, cited result when status is `completed`.
-        error:
+          anyOf:
+          - anyOf:
+            - $ref: '#/components/schemas/ResearchSourcedAnswerOutput_Output'
+            - $ref: '#/components/schemas/StructuredOutput_Output'
+          - type: 'null'
+        type:
           type: string
-          description: Failure reason when status is `failed`.
-    ResearchRequest:
-      type: object
+          const: research
       required:
-      - query
+      - createdAt
+      - error
+      - id
+      - status
+      - updatedAt
+      - input
+      - output
+      - type
+      additionalProperties: false
+      id: ResearchTaskOutput_Output
+    Source_Output:
+      type: object
       properties:
-        query:
+        name:
           type: string
-          description: Natural-language research question.
+          description: The title or name of the resource.
+          example: Microsoft 2024 Annual Report
+        url:
+          type: string
+          description: The URL of the resource.
+          example: https://www.microsoft.com/investor/reports/ar24/index.html
+          format: uri
+        favicon:
+          anyOf:
+          - type: string
+            const: ''
+          - type: string
+            format: uri
+          description: The favicon URL, if available.
+          example: https://www.microsoft.com/favicon.ico
+          format: uri
+        snippet:
+          type: string
+          description: Extracted text content associated with the source.
+          example: Highlights from fiscal year 2024 compared with fiscal year 2023 included...
+      required:
+      - name
+      - url
+      - favicon
+      - snippet
+      additionalProperties: false
+      id: Source_Output
+    ResearchTaskInput_Output:
+      type: object
+      properties:
+        excludeDomains:
+          description: The domains you want to exclude of the search. By default, don't restrict the search.
+          example:
+          - wikipedia.org
+          type: array
+          items:
+            example: wikipedia.org
+            type: string
+        fromDate:
+          description: The date from which the search results should be considered, in ISO 8601 format (YYYY-MM-DD). It must be before `toDate`, if provided, and later than 1970-01-01.
+          example: '2025-01-01'
+          type: string
+          format: date
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+        includeDomains:
+          description: The domains you want to search on. By default, don't restrict the search. You can provide up to 100 domains.
+          example:
+          - microsoft.com
+          - agolution.com
+          maxItems: 100
+          type: array
+          items:
+            example: microsoft.com
+            type: string
+        q:
+          description: The natural language question for which you want to retrieve context.
+          example: What is Microsoft's 2024 revenue?
+          type: string
+        structuredOutputSchema:
+          default: null
+          format: json
+          description: Required only when `outputType` is `structured`. Provide a JSON schema object representing the desired response format. The root must be of type `object`.
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties: {}
+        toDate:
+          description: The date until which the search results should be considered, in ISO 8601 format (YYYY-MM-DD). It must be later than `fromDate`, if provided, or than 1970-01-01.
+          example: '2025-01-01'
+          type: string
+          format: date
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
         mode:
-          type: string
+          default: auto
+          description: Pin the research agent mode. Omit to let the agent auto-classify per request based on the question.
           enum:
           - answer
+          - auto
           - investigate
           - research
-          description: Type of investigation. Omit to let Linkup classify the question.
-        reasoningDepth:
+          type: string
+        outputType:
           type: string
           enum:
-          - S
-          - M
-          - L
-          - XL
+          - sourcedAnswer
+          - structured
+          description: The type of output you want to get. Use `structured` for a custom-formatted response defined by `structuredOutputSchema`.
+        reasoningDepth:
           default: L
-          description: How much reasoning effort the task spends.
+          description: Pin the reasoning depth (S < M < L < XL). Defaults to L when omitted. Higher depths trade latency for thoroughness.
+          enum:
+          - L
+          - M
+          - S
+          - XL
+          type: string
+      required:
+      - q
+      - toDate
+      - mode
+      - outputType
+      - reasoningDepth
+      additionalProperties: false
+      id: ResearchTaskInput_Output
+    ResearchSourcedAnswerOutput:
+      example:
+        answer: '**Date:** May 19, 2026
+
+
+          ### 1. Executive Summary
+
+          The global semiconductor market has entered a period of unprecedented expansion in 2026, driven by an artificial intelligence "super-cycle" that is fundamentally restructuring industry supply and demand....'
+        sources:
+        - favicon: ''
+          name: Global Semiconductor Sales Increase 25% from Q4 2025 to Q1 2026 - Semiconductor Industry Association
+          snippet: Global semiconductor sales reached $298.5 billion during the first quarter of 2026, representing a 25% increase compared to the fourth quarter of 2025.
+          url: https://www.semiconductors.org/global-semiconductor-sales-increase-25-from-q4-2025-to-q1-2026/
+        - favicon: ''
+          name: Global Semiconductor Sales Increase 25% from Q4 2025 to Q1 2026 | SemiWiki
+          snippet: Global semiconductor sales in March 2026 were $99.5 billion, an increase of 79.2% compared to March 2025 and 11.5% more than February 2026.
+          url: https://semiwiki.com/forum/threads/global-semiconductor-sales-increase-25-from-q4-2025-to-q1-2026.25061/
+      id: ResearchSourcedAnswerOutput
+      $ref: '#/components/schemas/SourcedAnswerOutput'
+    ListResearchOutput:
+      type: object
+      properties:
+        metadata:
+          type: object
+          properties:
+            page:
+              type: number
+            pageSize:
+              type: number
+            total:
+              type: number
+            totalPages:
+              type: number
+          required:
+          - page
+          - pageSize
+          - total
+          - totalPages
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResearchTaskOutput'
+      required:
+      - metadata
+      - data
+      id: ListResearchOutput
+    SourcedAnswerOutput:
+      type: object
+      properties:
+        answer:
+          type: string
+          description: The answer to your question.
+          example: Microsoft's revenue for fiscal year 2024 was $245.1 billion, reflecting a 16% increase from the previous year.
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/Source'
+          description: List of sources used to answer the question.
+          example:
+          - name: Microsoft 2024 Annual Report
+            snippet: 'Highlights from fiscal year 2024 compared with fiscal year 2023 included: Microsoft Cloud revenue increased 23% to $137.4 billion.'
+            url: https://www.microsoft.com/investor/reports/ar24/index.html
+      required:
+      - answer
+      - sources
+      id: SourcedAnswerOutput
+    ResearchTaskOutput:
+      type: object
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+          description: The date and time when the task was created.
+          example: '2026-01-01T00:00:00.000Z'
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The error message if the task failed.
+        id:
+          type: string
+          description: The unique identifier of the task.
+          example: 01234-abcd-56789
+        status:
+          type: string
+          enum:
+          - completed
+          - failed
+          - pending
+          - processing
+          description: The current status of the task.
+          example: completed
+        updatedAt:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+          description: The date and time when the task status was last updated.
+          example: '2026-01-01T00:00:00.000Z'
+        input:
+          $ref: '#/components/schemas/ResearchTaskInput'
+        output:
+          anyOf:
+          - anyOf:
+            - $ref: '#/components/schemas/ResearchSourcedAnswerOutput'
+            - $ref: '#/components/schemas/StructuredOutput'
+          - type: 'null'
+        type:
+          type: string
+          const: research
+      required:
+      - createdAt
+      - error
+      - id
+      - status
+      - updatedAt
+      - input
+      - output
+      - type
+      id: ResearchTaskOutput
+    ResearchTaskInput:
+      type: object
+      properties:
+        excludeDomains:
+          description: The domains you want to exclude of the search. By default, don't restrict the search.
+          example:
+          - wikipedia.org
+          type: array
+          items:
+            example: wikipedia.org
+            type: string
+        fromDate:
+          description: The date from which the search results should be considered, in ISO 8601 format (YYYY-MM-DD). It must be before `toDate`, if provided, and later than 1970-01-01.
+          example: '2025-01-01'
+          anyOf:
+          - type: string
+          - type: 'null'
+        includeDomains:
+          description: The domains you want to search on. By default, don't restrict the search. You can provide up to 100 domains.
+          example:
+          - microsoft.com
+          - agolution.com
+          maxItems: 100
+          type: array
+          items:
+            example: microsoft.com
+            type: string
+        q:
+          description: The natural language question for which you want to retrieve context.
+          example: What is Microsoft's 2024 revenue?
+          type: string
+        structuredOutputSchema:
+          default: null
+          format: json
+          description: Required only when `outputType` is `structured`. Provide a JSON schema (as a string) representing the desired response format. The root must be of type `object`.
+        toDate:
+          description: The date until which the search results should be considered, in ISO 8601 format (YYYY-MM-DD). It must be later than `fromDate`, if provided, or than 1970-01-01.
+          example: '2025-01-01'
+          anyOf:
+          - type: string
+          - type: 'null'
+        mode:
+          default: auto
+          description: Pin the research agent mode. Omit to let the agent auto-classify per request based on the question.
+          enum:
+          - answer
+          - auto
+          - investigate
+          - research
+          type: string
+        outputType:
+          type: string
+          enum:
+          - sourcedAnswer
+          - structured
+          description: The type of output you want to get. Use `structured` for a custom-formatted response defined by `structuredOutputSchema`.
+        reasoningDepth:
+          default: L
+          description: Pin the reasoning depth (S < M < L < XL). Defaults to L when omitted. Higher depths trade latency for thoroughness.
+          enum:
+          - L
+          - M
+          - S
+          - XL
+          type: string
+      required:
+      - q
+      - outputType
+      id: ResearchTaskInput
+    StructuredOutput_Output:
+      type: object
+      propertyNames:
+        type: string
+      additionalProperties: {}
+      id: StructuredOutput_Output
+    PostResearchInput:
+      type: object
+      properties:
+        excludeDomains:
+          description: The domains you want to exclude of the search. By default, don't restrict the search.
+          example:
+          - wikipedia.org
+          type: array
+          items:
+            example: wikipedia.org
+            type: string
+        fromDate:
+          description: The date from which the search results should be considered, in ISO 8601 format (YYYY-MM-DD). It must be before `toDate`, if provided, and later than 1970-01-01.
+          example: '2025-01-01'
+          anyOf:
+          - type: string
+          - type: 'null'
+        includeDomains:
+          description: The domains you want to search on. By default, don't restrict the search. You can provide up to 100 domains.
+          example:
+          - microsoft.com
+          - agolution.com
+          maxItems: 100
+          type: array
+          items:
+            example: microsoft.com
+            type: string
+        q:
+          description: The natural language question for which you want to retrieve context.
+          example: What is Microsoft's 2024 revenue?
+          type: string
+        structuredOutputSchema:
+          default: null
+          format: json
+          description: Required only when `outputType` is `structured`. Provide a JSON schema (as a string) representing the desired response format. The root must be of type `object`.
+        toDate:
+          description: The date until which the search results should be considered, in ISO 8601 format (YYYY-MM-DD). It must be later than `fromDate`, if provided, or than 1970-01-01.
+          example: '2025-01-01'
+          anyOf:
+          - type: string
+          - type: 'null'
+        mode:
+          default: auto
+          description: Pin the research agent mode. Omit to let the agent auto-classify per request based on the question.
+          enum:
+          - answer
+          - auto
+          - investigate
+          - research
+          type: string
+        outputType:
+          type: string
+          enum:
+          - sourcedAnswer
+          - structured
+          description: The type of output you want to get. Use `structured` for a custom-formatted response defined by `structuredOutputSchema`.
+        reasoningDepth:
+          default: L
+          description: Pin the reasoning depth (S < M < L < XL). Defaults to L when omitted. Higher depths trade latency for thoroughness.
+          enum:
+          - L
+          - M
+          - S
+          - XL
+          type: string
+      required:
+      - q
+      - outputType
+      id: PostResearchInput
+      example:
+        outputType: sourcedAnswer
+        q: Research the current state of the semiconductor market, covering key market dynamics, major industry players and their strategic positioning, recent analyst sentiment, and the main bull and bear cases for the sector. Ground the report in sourced, factual information.
+    StructuredOutput:
+      type: object
+      propertyNames:
+        type: string
+      additionalProperties: {}
+      id: StructuredOutput
   securitySchemes:
-    bearerAuth:
-      type: http
+    bearer:
       scheme: bearer
       bearerFormat: JWT
-      description: 'Pass your Linkup API key as `Authorization: Bearer <API_KEY>`.'
+      type: http

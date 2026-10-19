@@ -1,30 +1,33 @@
 {
   "provider": "linkup-so",
   "sources": [
-    "_original/linkup-so-openapi.yml"
+    "_original/linkup-so-openapi.json"
   ],
   "outputs": [
     "linkup-so-credits-api-openapi.yml",
+    "linkup-so-extract-api-openapi.yml",
     "linkup-so-fetch-api-openapi.yml",
     "linkup-so-research-api-openapi.yml",
-    "linkup-so-search-api-openapi.yml"
+    "linkup-so-responses-api-openapi.yml",
+    "linkup-so-rewind-api-openapi.yml",
+    "linkup-so-search-api-openapi.yml",
+    "linkup-so-tasks-api-openapi.yml"
   ],
   "archived": [],
   "errors": [],
   "warnings": [],
   "notes": [
     "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
-    "linkup-so-openapi.yml: upgraded openapi 3.0.1 -> OpenAPI 3.2.0",
-    "linkup-so-openapi.yml: declared missing tag: Credits",
-    "linkup-so-openapi.yml: declared missing tag: Fetch",
-    "linkup-so-openapi.yml: declared missing tag: Research",
-    "linkup-so-openapi.yml: declared missing tag: Search",
-    "apis.yml register: already-registered"
+    "linkup-so-openapi.json: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "linkup-so-openapi.json: declared missing tag: Credits",
+    "linkup-so-openapi.json: declared missing tag: Extract",
+    "linkup-so-openapi.json: declared missing tag: Fetch",
+    "linkup-so-openapi.json: declared missing tag: Research",
+    "linkup-so-openapi.json: declared missing tag: Responses",
+    "linkup-so-openapi.json: declared missing tag: Rewind",
+    "linkup-so-openapi.json: declared missing tag: Search",
+    "linkup-so-openapi.json: declared missing tag: Tasks",
+    "apis.yml register: written (+4 apis, 8 total)"
   ],
-  "skipped": [
-    "linkup-so-credits-api-openapi.yml: previously refined output, superseded by openapi/_original/",
-    "linkup-so-fetch-api-openapi.yml: previously refined output, superseded by openapi/_original/",
-    "linkup-so-research-api-openapi.yml: previously refined output, superseded by openapi/_original/",
-    "linkup-so-search-api-openapi.yml: previously refined output, superseded by openapi/_original/"
-  ]
+  "skipped": []
 }

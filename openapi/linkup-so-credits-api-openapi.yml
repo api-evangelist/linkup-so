@@ -1,46 +1,48 @@
 openapi: 3.2.0
 info:
   title: Linkup Credits API
-  description: Production-grade web search and answer API for AI agents and LLMs. The /search endpoint grounds model responses in real-time web context, returning ranked results, sourced answers with inline citations, or schema-driven structured output. /fetch converts a URL into clean LLM-ready markdown, /research starts an asynchronous deep-research task, and /credits/balance reports remaining account credits. All endpoints authenticate with a Bearer API key.
-  termsOfService: https://www.linkup.so/terms-of-service
-  contact:
-    name: Linkup
-    url: https://www.linkup.so
+  description: Search the web in real time to get trustworthy, source-backed answers. Find the latest news and comprehensive results from the most relevant sources. Use natural language queries to quickly gather facts, citations, and context.
   version: '1.0'
+  contact: {}
 servers:
-- url: https://api.linkup.so/v1
-security:
-- bearerAuth: []
+- url: https://api.linkup.so
 tags:
 - name: Credits
 paths:
-  /credits/balance:
+  /v1/credits/balance:
     get:
-      operationId: getCreditsBalance
-      tags:
-      - Credits
-      summary: Retrieve the remaining credits balance for the account
+      description: The `/credits/balance` endpoint allows you to retrieve your current credits balance.
+      operationId: balance
+      parameters: []
       responses:
         '200':
-          description: OK
+          description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BalanceResponse'
+                $ref: '#/components/schemas/CreditOutput_Output'
         '401':
-          description: Unauthorized
+          description: Unauthorized - Invalid or missing API key
+      security:
+      - bearer: []
+      summary: /credits/balance
+      tags:
+      - Credits
 components:
   schemas:
-    BalanceResponse:
+    CreditOutput_Output:
       type: object
       properties:
         balance:
           type: number
           description: The number of credits remaining in your account.
           example: 123.456
+      required:
+      - balance
+      id: CreditOutput_Output
+      additionalProperties: false
   securitySchemes:
-    bearerAuth:
-      type: http
+    bearer:
       scheme: bearer
       bearerFormat: JWT
-      description: 'Pass your Linkup API key as `Authorization: Bearer <API_KEY>`.'
+      type: http

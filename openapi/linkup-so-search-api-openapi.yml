@@ -1,154 +1,300 @@
 openapi: 3.2.0
 info:
   title: Linkup Search API
-  description: Production-grade web search and answer API for AI agents and LLMs. The /search endpoint grounds model responses in real-time web context, returning ranked results, sourced answers with inline citations, or schema-driven structured output. /fetch converts a URL into clean LLM-ready markdown, /research starts an asynchronous deep-research task, and /credits/balance reports remaining account credits. All endpoints authenticate with a Bearer API key.
-  termsOfService: https://www.linkup.so/terms-of-service
-  contact:
-    name: Linkup
-    url: https://www.linkup.so
+  description: Search the web in real time to get trustworthy, source-backed answers. Find the latest news and comprehensive results from the most relevant sources. Use natural language queries to quickly gather facts, citations, and context.
   version: '1.0'
+  contact: {}
 servers:
-- url: https://api.linkup.so/v1
-security:
-- bearerAuth: []
+- url: https://api.linkup.so
 tags:
 - name: Search
 paths:
-  /search:
+  /v1/search:
     post:
+      description: The `/search` endpoint allows you to retrieve web content.
       operationId: search
-      tags:
-      - Search
-      summary: Run a web search and return context for an AI agent or LLM
-      description: Runs a natural-language query against the live web at fast, standard, or deep precision and returns ranked search results, a sourced answer with optional inline citations, or schema-driven structured output.
+      parameters: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SearchRequest'
+              $ref: '#/components/schemas/SearchInput'
       responses:
         '200':
-          description: OK
           content:
-            application/json:
+            searchResults:
               schema:
-                $ref: '#/components/schemas/SearchResponse'
+                $ref: '#/components/schemas/SearchResultsOutput'
+            sourcedAnswer:
+              schema:
+                $ref: '#/components/schemas/SourcedAnswerOutput'
+            structured:
+              schema:
+                description: When you pick `structured` for the `outputType` parameter, you will get the object corresponding to the JSON schema you used in the `structuredOutputSchema` param.
+                properties: {}
+                type: object
+            structuredWithSources:
+              schema:
+                $ref: '#/components/schemas/StructuredWithSourcesOutput'
+          description: Successful response
         '400':
-          description: Bad Request
+          description: Bad Request - Invalid parameters
         '401':
-          description: Unauthorized
+          description: Unauthorized - Invalid or missing API key
         '402':
-          description: Payment Required (insufficient credits)
+          description: Payment Required - No API key provided. Returns x402 payment details in the `payment-required` header for pay-per-request with USDC.
         '429':
-          description: Too Many Requests
+          description: Too Many Requests - Rate limit exceeded or insufficient credits
+      security:
+      - bearer: []
+      summary: /search
+      tags:
+      - Search
 components:
   schemas:
-    SearchResponse:
+    StructuredWithSourcesOutput:
       type: object
-      description: Shape varies by outputType. For `searchResults`, an array of results; for `sourcedAnswer`, an answer plus sources; for `structured`, a custom object optionally accompanied by sources.
       properties:
-        answer:
-          type: string
-          description: The sourced answer (outputType `sourcedAnswer`).
-        results:
-          type: array
-          description: Ranked search results (outputType `searchResults`).
-          items:
-            $ref: '#/components/schemas/SearchResult'
+        data:
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties: true
+          description: The object corresponding to the JSON schema you used in the `structuredOutputSchema` param.
         sources:
           type: array
           items:
-            $ref: '#/components/schemas/Source'
-    SearchResult:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-          - text
-          - image
-        name:
-          type: string
-        url:
-          type: string
-          format: uri
-        content:
-          type: string
-    SearchRequest:
-      type: object
+            oneOf:
+            - $ref: '#/components/schemas/TextSearchResultOutput'
+            - $ref: '#/components/schemas/ImageSearchResultOutput'
+          description: List of sources used to answer the question.
       required:
-      - q
-      - depth
-      - outputType
+      - data
+      - sources
+      id: StructuredWithSourcesOutput
+    SearchInput:
+      type: object
       properties:
+        excludeDomains:
+          description: The domains you want to exclude of the search. By default, don't restrict the search.
+          example:
+          - wikipedia.org
+          type: array
+          items:
+            example: wikipedia.org
+            type: string
+        fromDate:
+          description: The date from which the search results should be considered, in ISO 8601 format (YYYY-MM-DD). It must be before `toDate`, if provided, and later than 1970-01-01.
+          example: '2025-01-01'
+          anyOf:
+          - type: string
+          - type: 'null'
+        includeDomains:
+          description: The domains you want to search on. By default, don't restrict the search. You can provide up to 100 domains.
+          example:
+          - microsoft.com
+          - agolution.com
+          maxItems: 100
+          type: array
+          items:
+            example: microsoft.com
+            type: string
         q:
+          description: The natural language question for which you want to retrieve context.
+          example: What is Microsoft's 2024 revenue?
           type: string
-          description: Natural-language question used to retrieve web context.
+        structuredOutputSchema:
+          default: null
+          format: json
+          description: Required only when `outputType` is `structured`. Provide a JSON schema (as a string) representing the desired response format. The root must be of type `object`.
+        toDate:
+          description: The date until which the search results should be considered, in ISO 8601 format (YYYY-MM-DD). It must be later than `fromDate`, if provided, or than 1970-01-01.
+          example: '2025-01-01'
+          anyOf:
+          - type: string
+          - type: 'null'
         depth:
           type: string
           enum:
-          - fast
-          - standard
           - deep
-          description: Search precision mode.
+          - fast
+          - flash
+          - standard
+          description: 'Defines the search mode. `flash` is lowest latency: ranked sources and snippets in a few hundred milliseconds, built for low-latency use cases. `fast` is higher-quality one-shot retrieval in about a second — the recommended default for most agentic applications. `standard` is a single pass of agentic search for queries that span several topics or sources. `deep` runs several search iterations, optimizing for coverage and multi-hop agentic workflows.'
+        includeImages:
+          default: false
+          description: Defines whether the API should include images in its results.
+          anyOf:
+          - type: boolean
+          - type: string
+        includeInlineCitations:
+          default: false
+          description: Relevant only when `outputType` is `sourcedAnswer`. Defines whether the answer should include inline citations.
+          anyOf:
+          - type: boolean
+          - type: string
+        includeSources:
+          default: false
+          description: Relevant only when `outputType` is `structured`. Defines whether the response should include sources. **Please note that it modifies the schema of the response, see below**
+          anyOf:
+          - type: boolean
+          - type: string
+        maxResults:
+          description: The maximum number of results to return. The number of results will always be ≤ to maxResults.
+          example: 5
+          type: number
+          minimum: 1
         outputType:
           type: string
           enum:
           - searchResults
           - sourcedAnswer
           - structured
-          description: Shape of the returned payload.
-        structuredOutputSchema:
-          type: string
-          description: JSON Schema (as a string) describing the desired structured output. Required when outputType is `structured`.
-        includeImages:
-          type: boolean
-          default: false
-          description: Include images in the results.
-        includeInlineCitations:
-          type: boolean
-          default: false
-          description: Include inline citations. Applies only to `sourcedAnswer`.
-        includeSources:
-          type: boolean
-          default: false
-          description: Include sources. Applies only to `structured`.
-        fromDate:
-          type: string
-          format: date
-          description: Restrict results to this date forward (YYYY-MM-DD).
-        toDate:
-          type: string
-          format: date
-          description: Restrict results up to this date (YYYY-MM-DD).
-        includeDomains:
-          type: array
-          items:
-            type: string
-          description: Restrict the search to these domains (max 100).
+          description: The type of output you want to get. Use `structured` for a custom-formatted response defined by `structuredOutputSchema`.
+      required:
+      - q
+      - depth
+      - outputType
+      id: SearchInput
+      example:
+        depth: deep
         excludeDomains:
-          type: array
-          items:
-            type: string
-          description: Exclude these domains from the search.
-        maxResults:
-          type: integer
-          minimum: 1
-          description: Maximum number of results to return.
+        - wikipedia.org
+        includeDomains:
+        - microsoft.com
+        - agolution.com
+        outputType: sourcedAnswer
+        q: What is Microsoft's 2024 revenue?
     Source:
       type: object
       properties:
         name:
           type: string
+          description: The title or name of the resource.
+          example: Microsoft 2024 Annual Report
         url:
           type: string
+          description: The URL of the resource.
+          example: https://www.microsoft.com/investor/reports/ar24/index.html
+          format: uri
+        favicon:
+          anyOf:
+          - type: string
+            const: ''
+          - type: string
+            format: uri
+          description: The favicon URL, if available.
+          example: https://www.microsoft.com/favicon.ico
           format: uri
         snippet:
           type: string
+          description: Extracted text content associated with the source.
+          example: Highlights from fiscal year 2024 compared with fiscal year 2023 included...
+      required:
+      - name
+      - url
+      - favicon
+      - snippet
+      id: Source
+    ImageSearchResultOutput:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The title or name of the resource.
+          example: Microsoft 2024 Annual Report
+        url:
+          type: string
+          description: The URL of the resource.
+          example: https://www.microsoft.com/investor/reports/ar24/index.html
+          format: uri
+        type:
+          type: string
+          const: image
+          description: The type of the resource.
+          enum:
+          - image
+          example: image
+      required:
+      - name
+      - url
+      - type
+      id: ImageSearchResultOutput
+    SourcedAnswerOutput:
+      type: object
+      properties:
+        answer:
+          type: string
+          description: The answer to your question.
+          example: Microsoft's revenue for fiscal year 2024 was $245.1 billion, reflecting a 16% increase from the previous year.
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/Source'
+          description: List of sources used to answer the question.
+          example:
+          - name: Microsoft 2024 Annual Report
+            snippet: 'Highlights from fiscal year 2024 compared with fiscal year 2023 included: Microsoft Cloud revenue increased 23% to $137.4 billion.'
+            url: https://www.microsoft.com/investor/reports/ar24/index.html
+      required:
+      - answer
+      - sources
+      id: SourcedAnswerOutput
+    SearchResultsOutput:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/TextSearchResultOutput'
+            - $ref: '#/components/schemas/ImageSearchResultOutput'
+          description: List of search results.
+      required:
+      - results
+      id: SearchResultsOutput
+    TextSearchResultOutput:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The title or name of the resource.
+          example: Microsoft 2024 Annual Report
+        url:
+          type: string
+          description: The URL of the resource.
+          example: https://www.microsoft.com/investor/reports/ar24/index.html
+          format: uri
+        content:
+          type: string
+          description: Extracted text content associated with the resource.
+          example: 'Highlights from fiscal year 2024 compared with fiscal year 2023 included: Microsoft Cloud revenue increased 23% to $137.4 billion.'
+        favicon:
+          anyOf:
+          - type: string
+            const: ''
+          - type: string
+            format: uri
+          description: The favicon URL, if available.
+          example: https://www.microsoft.com/favicon.ico
+          format: uri
+        type:
+          type: string
+          const: text
+          description: The type of the resource.
+          enum:
+          - text
+          example: text
+      required:
+      - name
+      - url
+      - content
+      - favicon
+      - type
+      id: TextSearchResultOutput
   securitySchemes:
-    bearerAuth:
-      type: http
+    bearer:
       scheme: bearer
       bearerFormat: JWT
-      description: 'Pass your Linkup API key as `Authorization: Bearer <API_KEY>`.'
+      type: http

@@ -1,0 +1,1717 @@
+openapi: 3.2.0
+info:
+  title: Linkup Tasks API
+  description: Search the web in real time to get trustworthy, source-backed answers. Find the latest news and comprehensive results from the most relevant sources. Use natural language queries to quickly gather facts, citations, and context.
+  version: '1.0'
+  contact: {}
+servers:
+- url: https://api.linkup.so
+tags:
+- name: Tasks
+paths:
+  /v1/tasks:
+    post:
+      description: The `POST /tasks` method creates a list of tasks.
+      operationId: createTasks
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TasksInput'
+      responses:
+        '200':
+          description: Tasks created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostTasksOutput_Output'
+        '400':
+          description: Bad Request - Invalid parameters
+        '401':
+          description: Unauthorized - Invalid or missing API key
+        '429':
+          description: Too Many Requests - Rate limit exceeded or insufficient credits
+      security:
+      - bearer: []
+      summary: /tasks
+      tags:
+      - Tasks
+    get:
+      description: The `GET /tasks` method, without a task identifier, lists all created tasks for the authenticated organization, with pagination.
+      operationId: listTasks
+      parameters:
+      - name: type
+        required: false
+        in: query
+        explode: true
+        schema:
+          items:
+            enum:
+            - extract
+            - fetch
+            - research
+            - search
+            type: string
+          type: array
+      - name: status
+        required: false
+        in: query
+        explode: true
+        schema:
+          items:
+            enum:
+            - completed
+            - failed
+            - pending
+            - processing
+            type: string
+          type: array
+      - name: page
+        required: false
+        in: query
+        schema:
+          default: 1
+          minimum: 1
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          type: integer
+      - name: sortBy
+        required: false
+        in: query
+        schema:
+          enum:
+          - createdAt
+          - updatedAt
+          type: string
+      - name: sortDirection
+        required: false
+        in: query
+        schema:
+          default: asc
+          enum:
+          - asc
+          - desc
+          type: string
+      responses:
+        '200':
+          description: Paginated list of tasks.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListTasksOutput'
+        '401':
+          description: Unauthorized - Invalid or missing API key
+      security:
+      - bearer: []
+      summary: /tasks
+      tags:
+      - Tasks
+  /v1/tasks/{id}:
+    get:
+      description: The `GET /tasks/:id` method, with task identifier, retrieves a specific task information.
+      operationId: getTask
+      parameters:
+      - name: id
+        required: true
+        in: path
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Task details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskOutput'
+        '400':
+          description: Bad Request - Invalid parameters
+        '401':
+          description: Unauthorized - Invalid or missing API key
+      security:
+      - bearer: []
+      summary: /tasks/:id
+      tags:
+      - Tasks
+components:
+  schemas:
+    PostTasksOutput_Output:
+      type: array
+      items:
+        $ref: '#/components/schemas/TaskOutput_Output'
+      id: PostTasksOutput_Output
+    TaskOutput:
+      oneOf:
+      - type: object
+        properties:
+          createdAt:
+            type: string
+            format: date-time
+            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+            description: The date and time when the task was created.
+            example: '2026-01-01T00:00:00.000Z'
+          error:
+            anyOf:
+            - type: string
+            - type: 'null'
+            description: The error message if the task failed.
+          id:
+            type: string
+            description: The unique identifier of the task.
+            example: 01234-abcd-56789
+          status:
+            type: string
+            enum:
+            - completed
+            - failed
+            - pending
+            - processing
+            description: The current status of the task.
+            example: completed
+          updatedAt:
+            type: string
+            format: date-time
+            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+            description: The date and time when the task status was last updated.
+            example: '2026-01-01T00:00:00.000Z'
+          input:
+            $ref: '#/components/schemas/SearchTaskInput'
+          output:
+            anyOf:
+            - anyOf:
+              - $ref: '#/components/schemas/SourcedAnswerOutput'
+              - $ref: '#/components/schemas/SearchResultsOutput'
+              - $ref: '#/components/schemas/StructuredWithSourcesOutput'
+              - $ref: '#/components/schemas/StructuredOutput'
+            - type: 'null'
+          type:
+            type: string
+            const: search
+        required:
+        - createdAt
+        - error
+        - id
+        - status
+        - updatedAt
+        - input
+        - output
+        - type
+      - type: object
+        properties:
+          createdAt:
+            type: string
+            format: date-time
+            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+            description: The date and time when the task was created.
+            example: '2026-01-01T00:00:00.000Z'
+          error:
+            anyOf:
+            - type: string
+            - type: 'null'
+            description: The error message if the task failed.
+          id:
+            type: string
+            description: The unique identifier of the task.
+            example: 01234-abcd-56789
+          status:
+            type: string
+            enum:
+            - completed
+            - failed
+            - pending
+            - processing
+            description: The current status of the task.
+            example: completed
+          updatedAt:
+            type: string
+            format: date-time
+            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+            description: The date and time when the task status was last updated.
+            example: '2026-01-01T00:00:00.000Z'
+          input:
+            $ref: '#/components/schemas/FetchTaskInput'
+          output:
+            anyOf:
+            - $ref: '#/components/schemas/FetchOutput'
+            - type: 'null'
+          type:
+            type: string
+            const: fetch
+        required:
+        - createdAt
+        - error
+        - id
+        - status
+        - updatedAt
+        - input
+        - output
+        - type
+      - $ref: '#/components/schemas/ResearchTaskOutput'
+      - $ref: '#/components/schemas/ExtractTaskOutput'
+      id: TaskOutput
+    StructuredWithSourcesOutput_Output:
+      type: object
+      properties:
+        data:
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties: true
+          description: The object corresponding to the JSON schema you used in the `structuredOutputSchema` param.
+        sources:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/TextSearchResultOutput_Output'
+            - $ref: '#/components/schemas/ImageSearchResultOutput_Output'
+          description: List of sources used to answer the question.
+      required:
+      - data
+      - sources
+      additionalProperties: false
+      id: StructuredWithSourcesOutput_Output
+    ExtractTaskInput_Output:
+      type: object
+      properties:
+        q:
+          description: '[BETA] The natural-language query describing which rows to extract and what each row should contain.'
+          type: string
+        schema:
+          default: null
+          format: json
+          description: '[BETA] Optional JSON schema object describing a single extracted row. When provided, every returned row must match this schema.'
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties: {}
+        url:
+          description: '[BETA] The seed URL the extract task should start from.'
+          example: https://example.com/team
+          format: uri
+          type: string
+        verifyUrls:
+          default: false
+          description: '[BETA] Defines whether URLs found in extracted rows should be checked for reachability after extraction. Defaults to false.'
+          type: boolean
+      required:
+      - q
+      - url
+      additionalProperties: false
+      description: '[BETA] Input for an extract task. The extract task type is in beta; its behavior and response shape may change.'
+      id: ExtractTaskInput_Output
+    SearchTaskInput:
+      type: object
+      properties:
+        excludeDomains:
+          description: The domains you want to exclude of the search. By default, don't restrict the search.
+          example:
+          - wikipedia.org
+          type: array
+          items:
+            example: wikipedia.org
+            type: string
+        fromDate:
+          description: The date from which the search results should be considered, in ISO 8601 format (YYYY-MM-DD). It must be before `toDate`, if provided, and later than 1970-01-01.
+          example: '2025-01-01'
+          anyOf:
+          - type: string
+          - type: 'null'
+        includeDomains:
+          description: The domains you want to search on. By default, don't restrict the search. You can provide up to 100 domains.
+          example:
+          - microsoft.com
+          - agolution.com
+          maxItems: 100
+          type: array
+          items:
+            example: microsoft.com
+            type: string
+        q:
+          description: The natural language question for which you want to retrieve context.
+          example: What is Microsoft's 2024 revenue?
+          type: string
+        structuredOutputSchema:
+          default: null
+          format: json
+          description: Required only when `outputType` is `structured`. Provide a JSON schema (as a string) representing the desired response format. The root must be of type `object`.
+        toDate:
+          description: The date until which the search results should be considered, in ISO 8601 format (YYYY-MM-DD). It must be later than `fromDate`, if provided, or than 1970-01-01.
+          example: '2025-01-01'
+          anyOf:
+          - type: string
+          - type: 'null'
+        depth:
+          type: string
+          enum:
+          - deep
+          - fast
+          - flash
+          - standard
+          description: 'Defines the search mode. `flash` is lowest latency: ranked sources and snippets in a few hundred milliseconds, built for low-latency use cases. `fast` is higher-quality one-shot retrieval in about a second — the recommended default for most agentic applications. `standard` is a single pass of agentic search for queries that span several topics or sources. `deep` runs several search iterations, optimizing for coverage and multi-hop agentic workflows.'
+        includeImages:
+          default: false
+          description: Defines whether the API should include images in its results.
+          anyOf:
+          - type: boolean
+          - type: string
+        includeInlineCitations:
+          default: false
+          description: Relevant only when `outputType` is `sourcedAnswer`. Defines whether the answer should include inline citations.
+          anyOf:
+          - type: boolean
+          - type: string
+        includeSources:
+          default: false
+          description: Relevant only when `outputType` is `structured`. Defines whether the response should include sources. **Please note that it modifies the schema of the response, see below**
+          anyOf:
+          - type: boolean
+          - type: string
+        maxResults:
+          description: The maximum number of results to return. The number of results will always be ≤ to maxResults.
+          example: 5
+          type: number
+          minimum: 1
+        outputType:
+          type: string
+          enum:
+          - searchResults
+          - sourcedAnswer
+          - structured
+          description: The type of output you want to get. Use `structured` for a custom-formatted response defined by `structuredOutputSchema`.
+      required:
+      - q
+      - depth
+      - outputType
+      id: SearchTaskInput
+    TextSearchResultOutput_Output:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The title or name of the resource.
+          example: Microsoft 2024 Annual Report
+        url:
+          type: string
+          description: The URL of the resource.
+          example: https://www.microsoft.com/investor/reports/ar24/index.html
+          format: uri
+        content:
+          type: string
+          description: Extracted text content associated with the resource.
+          example: 'Highlights from fiscal year 2024 compared with fiscal year 2023 included: Microsoft Cloud revenue increased 23% to $137.4 billion.'
+        favicon:
+          anyOf:
+          - type: string
+            const: ''
+          - type: string
+            format: uri
+          description: The favicon URL, if available.
+          example: https://www.microsoft.com/favicon.ico
+          format: uri
+        type:
+          type: string
+          const: text
+          description: The type of the resource.
+          enum:
+          - text
+          example: text
+      required:
+      - name
+      - url
+      - content
+      - favicon
+      - type
+      additionalProperties: false
+      id: TextSearchResultOutput_Output
+    TaskInput:
+      oneOf:
+      - type: object
+        properties:
+          input:
+            $ref: '#/components/schemas/SearchTaskInput'
+          type:
+            type: string
+            const: search
+        required:
+        - input
+        - type
+      - type: object
+        properties:
+          input:
+            $ref: '#/components/schemas/FetchTaskInput'
+          type:
+            type: string
+            const: fetch
+        required:
+        - input
+        - type
+      - type: object
+        properties:
+          input:
+            $ref: '#/components/schemas/ResearchTaskInput'
+          type:
+            type: string
+            const: research
+        required:
+        - input
+        - type
+      - type: object
+        properties:
+          input:
+            $ref: '#/components/schemas/ExtractTaskInput'
+          type:
+            type: string
+            const: extract
+            description: '[BETA] Extract task type. This feature is in beta.'
+        required:
+        - input
+        - type
+      id: TaskInput
+    FetchImageOutput:
+      type: object
+      properties:
+        alt:
+          type: string
+          description: The alt text of the image.
+          example: Image description
+        url:
+          type: string
+          description: The URL of the image.
+          example: https://example.com/image.jpg
+          format: uri
+      required:
+      - alt
+      - url
+      id: FetchImageOutput
+    ImageSearchResultOutput_Output:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The title or name of the resource.
+          example: Microsoft 2024 Annual Report
+        url:
+          type: string
+          description: The URL of the resource.
+          example: https://www.microsoft.com/investor/reports/ar24/index.html
+          format: uri
+        type:
+          type: string
+          const: image
+          description: The type of the resource.
+          enum:
+          - image
+          example: image
+      required:
+      - name
+      - url
+      - type
+      additionalProperties: false
+      id: ImageSearchResultOutput_Output
+    TasksInput:
+      minItems: 1
+      maxItems: 100
+      type: array
+      items:
+        $ref: '#/components/schemas/TaskInput'
+      example:
+      - input:
+          depth: deep
+          excludeDomains:
+          - wikipedia.org
+          includeDomains:
+          - microsoft.com
+          - agolution.com
+          outputType: sourcedAnswer
+          q: What is Microsoft's 2024 revenue?
+        type: search
+      - input:
+          extractImages: false
+          includeRawContent: false
+          renderJs: false
+          url: https://docs.linkup.so
+        type: fetch
+      - input:
+          outputType: sourcedAnswer
+          q: Research the current state of the semiconductor market, covering key market dynamics, major industry players and their strategic positioning, recent analyst sentiment, and the main bull and bear cases for the sector. Ground the report in sourced, factual information.
+        type: research
+      id: TasksInput
+    ResearchTaskInput:
+      type: object
+      properties:
+        excludeDomains:
+          description: The domains you want to exclude of the search. By default, don't restrict the search.
+          example:
+          - wikipedia.org
+          type: array
+          items:
+            example: wikipedia.org
+            type: string
+        fromDate:
+          description: The date from which the search results should be considered, in ISO 8601 format (YYYY-MM-DD). It must be before `toDate`, if provided, and later than 1970-01-01.
+          example: '2025-01-01'
+          anyOf:
+          - type: string
+          - type: 'null'
+        includeDomains:
+          description: The domains you want to search on. By default, don't restrict the search. You can provide up to 100 domains.
+          example:
+          - microsoft.com
+          - agolution.com
+          maxItems: 100
+          type: array
+          items:
+            example: microsoft.com
+            type: string
+        q:
+          description: The natural language question for which you want to retrieve context.
+          example: What is Microsoft's 2024 revenue?
+          type: string
+        structuredOutputSchema:
+          default: null
+          format: json
+          description: Required only when `outputType` is `structured`. Provide a JSON schema (as a string) representing the desired response format. The root must be of type `object`.
+        toDate:
+          description: The date until which the search results should be considered, in ISO 8601 format (YYYY-MM-DD). It must be later than `fromDate`, if provided, or than 1970-01-01.
+          example: '2025-01-01'
+          anyOf:
+          - type: string
+          - type: 'null'
+        mode:
+          default: auto
+          description: Pin the research agent mode. Omit to let the agent auto-classify per request based on the question.
+          enum:
+          - answer
+          - auto
+          - investigate
+          - research
+          type: string
+        outputType:
+          type: string
+          enum:
+          - sourcedAnswer
+          - structured
+          description: The type of output you want to get. Use `structured` for a custom-formatted response defined by `structuredOutputSchema`.
+        reasoningDepth:
+          default: L
+          description: Pin the reasoning depth (S < M < L < XL). Defaults to L when omitted. Higher depths trade latency for thoroughness.
+          enum:
+          - L
+          - M
+          - S
+          - XL
+          type: string
+      required:
+      - q
+      - outputType
+      id: ResearchTaskInput
+    FetchImageOutput_Output:
+      type: object
+      properties:
+        alt:
+          type: string
+          description: The alt text of the image.
+          example: Image description
+        url:
+          type: string
+          description: The URL of the image.
+          example: https://example.com/image.jpg
+          format: uri
+      required:
+      - alt
+      - url
+      additionalProperties: false
+      id: FetchImageOutput_Output
+    ResearchTaskOutput_Output:
+      type: object
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+          description: The date and time when the task was created.
+          example: '2026-01-01T00:00:00.000Z'
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The error message if the task failed.
+        id:
+          type: string
+          description: The unique identifier of the task.
+          example: 01234-abcd-56789
+        status:
+          type: string
+          enum:
+          - completed
+          - failed
+          - pending
+          - processing
+          description: The current status of the task.
+          example: completed
+        updatedAt:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+          description: The date and time when the task status was last updated.
+          example: '2026-01-01T00:00:00.000Z'
+        input:
+          $ref: '#/components/schemas/ResearchTaskInput_Output'
+        output:
+          anyOf:
+          - anyOf:
+            - $ref: '#/components/schemas/ResearchSourcedAnswerOutput_Output'
+            - $ref: '#/components/schemas/StructuredOutput_Output'
+          - type: 'null'
+        type:
+          type: string
+          const: research
+      required:
+      - createdAt
+      - error
+      - id
+      - status
+      - updatedAt
+      - input
+      - output
+      - type
+      additionalProperties: false
+      id: ResearchTaskOutput_Output
+    ExtractOutput_Output:
+      type: object
+      properties:
+        creditsUsed:
+          type: number
+          minimum: 0
+          description: '[BETA] Credits used by this extract task.'
+        resultUrl:
+          type: string
+          format: uri
+          description: '[BETA] URL to download the extracted rows as a newline-delimited JSON (NDJSON) file. The URL remains valid for 24 hours.'
+        rowsReturned:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+      required:
+      - creditsUsed
+      - resultUrl
+      - rowsReturned
+      additionalProperties: false
+      description: '[BETA] Output for an extract task. The extracted rows are stored as an NDJSON file and exposed through a time-limited URL. The extract task type is in beta; its behavior and response shape may change.'
+      id: ExtractOutput_Output
+    ListTasksOutput:
+      type: object
+      properties:
+        metadata:
+          type: object
+          properties:
+            page:
+              type: number
+            pageSize:
+              type: number
+            total:
+              type: number
+            totalPages:
+              type: number
+          required:
+          - page
+          - pageSize
+          - total
+          - totalPages
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskOutput'
+        quota:
+          $ref: '#/components/schemas/TasksQuota'
+      required:
+      - metadata
+      - data
+      - quota
+      id: ListTasksOutput
+    Source_Output:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The title or name of the resource.
+          example: Microsoft 2024 Annual Report
+        url:
+          type: string
+          description: The URL of the resource.
+          example: https://www.microsoft.com/investor/reports/ar24/index.html
+          format: uri
+        favicon:
+          anyOf:
+          - type: string
+            const: ''
+          - type: string
+            format: uri
+          description: The favicon URL, if available.
+          example: https://www.microsoft.com/favicon.ico
+          format: uri
+        snippet:
+          type: string
+          description: Extracted text content associated with the source.
+          example: Highlights from fiscal year 2024 compared with fiscal year 2023 included...
+      required:
+      - name
+      - url
+      - favicon
+      - snippet
+      additionalProperties: false
+      id: Source_Output
+    FetchTaskInput_Output:
+      type: object
+      properties:
+        extractImages:
+          default: false
+          description: Defines whether the API should extract the images from the webpage in its response.
+          example: false
+          type: boolean
+        includeRawContent:
+          default: false
+          description: Defines whether the API should include the raw page content and its content type in the response.
+          example: false
+          type: boolean
+        includeRawHtml:
+          default: false
+          deprecated: true
+          description: Deprecated. Use includeRawContent instead. Defines whether rawHtml is returned for non-LinkedIn HTML pages.
+          example: false
+          type: boolean
+        renderJs:
+          default: false
+          description: Defines whether the API should render the JavaScript of the webpage.
+          example: false
+          type: boolean
+        mode:
+          default: standard
+          description: Defines the fetch strategy. Pro fetch delivers significantly higher success rates on hard-to-retrieve pages.
+          example: standard
+          type: string
+          enum:
+          - standard
+          - pro
+        instructions:
+          description: Optional instructions that guide how data is extracted. Requires schema.
+          example: Use public list prices only and express monetary values in USD.
+          type: string
+          maxLength: 4000
+        schema:
+          default: null
+          format: json
+          description: Optional JSON Schema object describing the structured data to extract from the page.
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties: {}
+        url:
+          description: The URL of the webpage you want to fetch.
+          example: https://docs.linkup.so
+          format: uri
+          type: string
+      required:
+      - extractImages
+      - includeRawContent
+      - includeRawHtml
+      - renderJs
+      - mode
+      - url
+      additionalProperties: false
+      id: FetchTaskInput_Output
+    ResearchSourcedAnswerOutput:
+      example:
+        answer: '**Date:** May 19, 2026
+
+
+          ### 1. Executive Summary
+
+          The global semiconductor market has entered a period of unprecedented expansion in 2026, driven by an artificial intelligence "super-cycle" that is fundamentally restructuring industry supply and demand....'
+        sources:
+        - favicon: ''
+          name: Global Semiconductor Sales Increase 25% from Q4 2025 to Q1 2026 - Semiconductor Industry Association
+          snippet: Global semiconductor sales reached $298.5 billion during the first quarter of 2026, representing a 25% increase compared to the fourth quarter of 2025.
+          url: https://www.semiconductors.org/global-semiconductor-sales-increase-25-from-q4-2025-to-q1-2026/
+        - favicon: ''
+          name: Global Semiconductor Sales Increase 25% from Q4 2025 to Q1 2026 | SemiWiki
+          snippet: Global semiconductor sales in March 2026 were $99.5 billion, an increase of 79.2% compared to March 2025 and 11.5% more than February 2026.
+          url: https://semiwiki.com/forum/threads/global-semiconductor-sales-increase-25-from-q4-2025-to-q1-2026.25061/
+      id: ResearchSourcedAnswerOutput
+      $ref: '#/components/schemas/SourcedAnswerOutput'
+    ExtractTaskOutput:
+      type: object
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+          description: The date and time when the task was created.
+          example: '2026-01-01T00:00:00.000Z'
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The error message if the task failed.
+        id:
+          type: string
+          description: The unique identifier of the task.
+          example: 01234-abcd-56789
+        status:
+          type: string
+          enum:
+          - completed
+          - failed
+          - pending
+          - processing
+          description: The current status of the task.
+          example: completed
+        updatedAt:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+          description: The date and time when the task status was last updated.
+          example: '2026-01-01T00:00:00.000Z'
+        input:
+          $ref: '#/components/schemas/ExtractTaskInput'
+        output:
+          anyOf:
+          - $ref: '#/components/schemas/ExtractOutput'
+          - type: 'null'
+        type:
+          type: string
+          const: extract
+      required:
+      - createdAt
+      - error
+      - id
+      - status
+      - updatedAt
+      - input
+      - output
+      - type
+      description: '[BETA] Extract task output. The extract task type is in beta; its behavior and response shape may change.'
+      id: ExtractTaskOutput
+    TaskOutput_Output:
+      oneOf:
+      - type: object
+        properties:
+          createdAt:
+            type: string
+            format: date-time
+            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+            description: The date and time when the task was created.
+            example: '2026-01-01T00:00:00.000Z'
+          error:
+            anyOf:
+            - type: string
+            - type: 'null'
+            description: The error message if the task failed.
+          id:
+            type: string
+            description: The unique identifier of the task.
+            example: 01234-abcd-56789
+          status:
+            type: string
+            enum:
+            - completed
+            - failed
+            - pending
+            - processing
+            description: The current status of the task.
+            example: completed
+          updatedAt:
+            type: string
+            format: date-time
+            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+            description: The date and time when the task status was last updated.
+            example: '2026-01-01T00:00:00.000Z'
+          input:
+            $ref: '#/components/schemas/SearchTaskInput_Output'
+          output:
+            anyOf:
+            - anyOf:
+              - $ref: '#/components/schemas/SourcedAnswerOutput_Output'
+              - $ref: '#/components/schemas/SearchResultsOutput_Output'
+              - $ref: '#/components/schemas/StructuredWithSourcesOutput_Output'
+              - $ref: '#/components/schemas/StructuredOutput_Output'
+            - type: 'null'
+          type:
+            type: string
+            const: search
+        required:
+        - createdAt
+        - error
+        - id
+        - status
+        - updatedAt
+        - input
+        - output
+        - type
+        additionalProperties: false
+      - type: object
+        properties:
+          createdAt:
+            type: string
+            format: date-time
+            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+            description: The date and time when the task was created.
+            example: '2026-01-01T00:00:00.000Z'
+          error:
+            anyOf:
+            - type: string
+            - type: 'null'
+            description: The error message if the task failed.
+          id:
+            type: string
+            description: The unique identifier of the task.
+            example: 01234-abcd-56789
+          status:
+            type: string
+            enum:
+            - completed
+            - failed
+            - pending
+            - processing
+            description: The current status of the task.
+            example: completed
+          updatedAt:
+            type: string
+            format: date-time
+            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+            description: The date and time when the task status was last updated.
+            example: '2026-01-01T00:00:00.000Z'
+          input:
+            $ref: '#/components/schemas/FetchTaskInput_Output'
+          output:
+            anyOf:
+            - $ref: '#/components/schemas/FetchOutput_Output'
+            - type: 'null'
+          type:
+            type: string
+            const: fetch
+        required:
+        - createdAt
+        - error
+        - id
+        - status
+        - updatedAt
+        - input
+        - output
+        - type
+        additionalProperties: false
+      - $ref: '#/components/schemas/ResearchTaskOutput_Output'
+      - $ref: '#/components/schemas/ExtractTaskOutput_Output'
+      id: TaskOutput_Output
+    SourcedAnswerOutput:
+      type: object
+      properties:
+        answer:
+          type: string
+          description: The answer to your question.
+          example: Microsoft's revenue for fiscal year 2024 was $245.1 billion, reflecting a 16% increase from the previous year.
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/Source'
+          description: List of sources used to answer the question.
+          example:
+          - name: Microsoft 2024 Annual Report
+            snippet: 'Highlights from fiscal year 2024 compared with fiscal year 2023 included: Microsoft Cloud revenue increased 23% to $137.4 billion.'
+            url: https://www.microsoft.com/investor/reports/ar24/index.html
+      required:
+      - answer
+      - sources
+      id: SourcedAnswerOutput
+    ResearchSourcedAnswerOutput_Output:
+      example:
+        answer: '**Date:** May 19, 2026
+
+
+          ### 1. Executive Summary
+
+          The global semiconductor market has entered a period of unprecedented expansion in 2026, driven by an artificial intelligence "super-cycle" that is fundamentally restructuring industry supply and demand....'
+        sources:
+        - favicon: ''
+          name: Global Semiconductor Sales Increase 25% from Q4 2025 to Q1 2026 - Semiconductor Industry Association
+          snippet: Global semiconductor sales reached $298.5 billion during the first quarter of 2026, representing a 25% increase compared to the fourth quarter of 2025.
+          url: https://www.semiconductors.org/global-semiconductor-sales-increase-25-from-q4-2025-to-q1-2026/
+        - favicon: ''
+          name: Global Semiconductor Sales Increase 25% from Q4 2025 to Q1 2026 | SemiWiki
+          snippet: Global semiconductor sales in March 2026 were $99.5 billion, an increase of 79.2% compared to March 2025 and 11.5% more than February 2026.
+          url: https://semiwiki.com/forum/threads/global-semiconductor-sales-increase-25-from-q4-2025-to-q1-2026.25061/
+      id: ResearchSourcedAnswerOutput_Output
+      $ref: '#/components/schemas/SourcedAnswerOutput_Output'
+    SearchResultsOutput:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/TextSearchResultOutput'
+            - $ref: '#/components/schemas/ImageSearchResultOutput'
+          description: List of search results.
+      required:
+      - results
+      id: SearchResultsOutput
+    SearchResultsOutput_Output:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/TextSearchResultOutput_Output'
+            - $ref: '#/components/schemas/ImageSearchResultOutput_Output'
+          description: List of search results.
+      required:
+      - results
+      additionalProperties: false
+      id: SearchResultsOutput_Output
+    SourcedAnswerOutput_Output:
+      type: object
+      properties:
+        answer:
+          type: string
+          description: The answer to your question.
+          example: Microsoft's revenue for fiscal year 2024 was $245.1 billion, reflecting a 16% increase from the previous year.
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/Source_Output'
+          description: List of sources used to answer the question.
+          example:
+          - name: Microsoft 2024 Annual Report
+            snippet: 'Highlights from fiscal year 2024 compared with fiscal year 2023 included: Microsoft Cloud revenue increased 23% to $137.4 billion.'
+            url: https://www.microsoft.com/investor/reports/ar24/index.html
+      required:
+      - answer
+      - sources
+      additionalProperties: false
+      id: SourcedAnswerOutput_Output
+    ExtractOutput:
+      type: object
+      properties:
+        creditsUsed:
+          type: number
+          minimum: 0
+          description: '[BETA] Credits used by this extract task.'
+        resultUrl:
+          type: string
+          format: uri
+          description: '[BETA] URL to download the extracted rows as a newline-delimited JSON (NDJSON) file. The URL remains valid for 24 hours.'
+        rowsReturned:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+      required:
+      - creditsUsed
+      - resultUrl
+      - rowsReturned
+      description: '[BETA] Output for an extract task. The extracted rows are stored as an NDJSON file and exposed through a time-limited URL. The extract task type is in beta; its behavior and response shape may change.'
+      id: ExtractOutput
+    StructuredWithSourcesOutput:
+      type: object
+      properties:
+        data:
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties: true
+          description: The object corresponding to the JSON schema you used in the `structuredOutputSchema` param.
+        sources:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/TextSearchResultOutput'
+            - $ref: '#/components/schemas/ImageSearchResultOutput'
+          description: List of sources used to answer the question.
+      required:
+      - data
+      - sources
+      id: StructuredWithSourcesOutput
+    Source:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The title or name of the resource.
+          example: Microsoft 2024 Annual Report
+        url:
+          type: string
+          description: The URL of the resource.
+          example: https://www.microsoft.com/investor/reports/ar24/index.html
+          format: uri
+        favicon:
+          anyOf:
+          - type: string
+            const: ''
+          - type: string
+            format: uri
+          description: The favicon URL, if available.
+          example: https://www.microsoft.com/favicon.ico
+          format: uri
+        snippet:
+          type: string
+          description: Extracted text content associated with the source.
+          example: Highlights from fiscal year 2024 compared with fiscal year 2023 included...
+      required:
+      - name
+      - url
+      - favicon
+      - snippet
+      id: Source
+    FetchOutput:
+      type: object
+      properties:
+        contentType:
+          description: The type of rawContent. Present only when rawContent is returned.
+          example: html
+          type: string
+        data:
+          description: Structured data extracted from the webpage. Present only when schema is provided; fields with no grounded value are omitted.
+          example:
+            name: Example product
+            price: 49
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties: {}
+        favicon:
+          type: string
+          format: uri
+          description: The URL of the website favicon.
+          example: https://favicons.linkup.so?domain=docs.linkup.so
+        images:
+          description: List of images extracted from the webpage.
+          example:
+          - alt: Image 1
+            url: https://example.com/image.jpg
+          - alt: Image 2
+            url: https://example.com/image2.jpg
+          type: array
+          items:
+            $ref: '#/components/schemas/FetchImageOutput'
+        markdown:
+          type: string
+          description: The clean markdown version of the webpage.
+          example: Get started for free, no credit card required...
+        rawContent:
+          description: The raw page content.
+          example: <!DOCTYPE html><html lang="en"><head>...</head><body>...</body></html>
+          type: string
+        rawHtml:
+          deprecated: true
+          description: The raw HTML version of the webpage.
+          example: <!DOCTYPE html><html lang="en"><head>...</head><body>...</body></html>
+          type: string
+      required:
+      - favicon
+      - markdown
+      id: FetchOutput
+    StructuredOutput_Output:
+      type: object
+      propertyNames:
+        type: string
+      additionalProperties: {}
+      id: StructuredOutput_Output
+    SearchTaskInput_Output:
+      type: object
+      properties:
+        excludeDomains:
+          description: The domains you want to exclude of the search. By default, don't restrict the search.
+          example:
+          - wikipedia.org
+          type: array
+          items:
+            example: wikipedia.org
+            type: string
+        fromDate:
+          description: The date from which the search results should be considered, in ISO 8601 format (YYYY-MM-DD). It must be before `toDate`, if provided, and later than 1970-01-01.
+          example: '2025-01-01'
+          type: string
+          format: date
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+        includeDomains:
+          description: The domains you want to search on. By default, don't restrict the search. You can provide up to 100 domains.
+          example:
+          - microsoft.com
+          - agolution.com
+          maxItems: 100
+          type: array
+          items:
+            example: microsoft.com
+            type: string
+        q:
+          description: The natural language question for which you want to retrieve context.
+          example: What is Microsoft's 2024 revenue?
+          type: string
+        structuredOutputSchema:
+          default: null
+          format: json
+          description: Required only when `outputType` is `structured`. Provide a JSON schema object representing the desired response format. The root must be of type `object`.
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties: {}
+        toDate:
+          description: The date until which the search results should be considered, in ISO 8601 format (YYYY-MM-DD). It must be later than `fromDate`, if provided, or than 1970-01-01.
+          example: '2025-01-01'
+          type: string
+          format: date
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+        depth:
+          type: string
+          enum:
+          - deep
+          - fast
+          - flash
+          - standard
+          description: 'Defines the search mode. `flash` is lowest latency: ranked sources and snippets in a few hundred milliseconds, built for low-latency use cases. `fast` is higher-quality one-shot retrieval in about a second — the recommended default for most agentic applications. `standard` is a single pass of agentic search for queries that span several topics or sources. `deep` runs several search iterations, optimizing for coverage and multi-hop agentic workflows.'
+        includeImages:
+          default: false
+          description: Defines whether the API should include images in its results.
+          type: boolean
+        includeInlineCitations:
+          default: false
+          description: Relevant only when `outputType` is `sourcedAnswer`. Defines whether the answer should include inline citations.
+          type: boolean
+        includeSources:
+          default: false
+          description: Relevant only when `outputType` is `structured`. Defines whether the response should include sources. **Please note that it modifies the schema of the response, see below**
+          type: boolean
+        maxResults:
+          description: The maximum number of results to return. The number of results will always be ≤ to maxResults.
+          example: 5
+          type: number
+          minimum: 1
+        outputType:
+          type: string
+          enum:
+          - searchResults
+          - sourcedAnswer
+          - structured
+          description: The type of output you want to get. Use `structured` for a custom-formatted response defined by `structuredOutputSchema`.
+      required:
+      - q
+      - toDate
+      - depth
+      - includeImages
+      - includeInlineCitations
+      - includeSources
+      - outputType
+      additionalProperties: false
+      id: SearchTaskInput_Output
+    TasksQuota:
+      type: object
+      properties:
+        inFlight:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+          description: Number of tasks currently pending or processing for the organization.
+        limit:
+          type: integer
+          exclusiveMinimum: 0
+          maximum: 9007199254740991
+          description: Maximum number of concurrent pending or processing tasks allowed.
+      required:
+      - inFlight
+      - limit
+      id: TasksQuota
+    StructuredOutput:
+      type: object
+      propertyNames:
+        type: string
+      additionalProperties: {}
+      id: StructuredOutput
+    ExtractTaskOutput_Output:
+      type: object
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+          description: The date and time when the task was created.
+          example: '2026-01-01T00:00:00.000Z'
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The error message if the task failed.
+        id:
+          type: string
+          description: The unique identifier of the task.
+          example: 01234-abcd-56789
+        status:
+          type: string
+          enum:
+          - completed
+          - failed
+          - pending
+          - processing
+          description: The current status of the task.
+          example: completed
+        updatedAt:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+          description: The date and time when the task status was last updated.
+          example: '2026-01-01T00:00:00.000Z'
+        input:
+          $ref: '#/components/schemas/ExtractTaskInput_Output'
+        output:
+          anyOf:
+          - $ref: '#/components/schemas/ExtractOutput_Output'
+          - type: 'null'
+        type:
+          type: string
+          const: extract
+      required:
+      - createdAt
+      - error
+      - id
+      - status
+      - updatedAt
+      - input
+      - output
+      - type
+      additionalProperties: false
+      description: '[BETA] Extract task output. The extract task type is in beta; its behavior and response shape may change.'
+      id: ExtractTaskOutput_Output
+    FetchTaskInput:
+      type: object
+      properties:
+        extractImages:
+          default: false
+          description: Defines whether the API should extract the images from the webpage in its response.
+          example: false
+          anyOf:
+          - type: boolean
+          - type: string
+        includeRawContent:
+          default: false
+          description: Defines whether the API should include the raw page content and its content type in the response.
+          example: false
+          anyOf:
+          - type: boolean
+          - type: string
+        includeRawHtml:
+          default: false
+          deprecated: true
+          description: Deprecated. Use includeRawContent instead. Defines whether rawHtml is returned for non-LinkedIn HTML pages.
+          example: false
+          anyOf:
+          - type: boolean
+          - type: string
+        renderJs:
+          default: false
+          description: Defines whether the API should render the JavaScript of the webpage.
+          example: false
+          anyOf:
+          - type: boolean
+          - type: string
+        mode:
+          default: standard
+          description: Defines the fetch strategy. Pro fetch delivers significantly higher success rates on hard-to-retrieve pages.
+          example: standard
+          type: string
+          enum:
+          - standard
+          - pro
+        instructions:
+          description: Optional instructions that guide how data is extracted. Requires schema.
+          example: Use public list prices only and express monetary values in USD.
+          type: string
+        schema:
+          default: null
+          format: json
+          description: Optional JSON Schema of type object describing the structured data to extract from the page. Fields with no grounded value are omitted, even when marked as required.
+        url:
+          description: The URL of the webpage you want to fetch.
+          example: https://docs.linkup.so
+          format: uri
+          type: string
+      required:
+      - url
+      id: FetchTaskInput
+    ExtractTaskInput:
+      type: object
+      properties:
+        q:
+          description: '[BETA] The natural-language query describing which rows to extract and what each row should contain.'
+          type: string
+        schema:
+          default: null
+          format: json
+          description: '[BETA] Optional JSON schema describing a single extracted row. When provided, every returned row must match this schema.'
+        url:
+          description: '[BETA] The seed URL the extract task should start from.'
+          example: https://example.com/team
+          format: uri
+          type: string
+        verifyUrls:
+          default: false
+          description: '[BETA] Defines whether URLs found in extracted rows should be checked for reachability after extraction. Defaults to false.'
+          type: boolean
+      required:
+      - q
+      - url
+      description: '[BETA] Input for an extract task. The extract task type is in beta; its behavior and response shape may change.'
+      id: ExtractTaskInput
+    FetchOutput_Output:
+      type: object
+      properties:
+        contentType:
+          description: The type of rawContent. Present only when rawContent is returned.
+          example: html
+          type: string
+        data:
+          description: Structured data extracted from the webpage. Present only when schema is provided; fields with no grounded value are omitted.
+          example:
+            name: Example product
+            price: 49
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties: {}
+        favicon:
+          type: string
+          format: uri
+          description: The URL of the website favicon.
+          example: https://favicons.linkup.so?domain=docs.linkup.so
+        images:
+          description: List of images extracted from the webpage.
+          example:
+          - alt: Image 1
+            url: https://example.com/image.jpg
+          - alt: Image 2
+            url: https://example.com/image2.jpg
+          type: array
+          items:
+            $ref: '#/components/schemas/FetchImageOutput_Output'
+        markdown:
+          type: string
+          description: The clean markdown version of the webpage.
+          example: Get started for free, no credit card required...
+        rawContent:
+          description: The raw page content.
+          example: <!DOCTYPE html><html lang="en"><head>...</head><body>...</body></html>
+          type: string
+        rawHtml:
+          deprecated: true
+          description: The raw HTML version of the webpage.
+          example: <!DOCTYPE html><html lang="en"><head>...</head><body>...</body></html>
+          type: string
+      required:
+      - favicon
+      - markdown
+      additionalProperties: false
+      id: FetchOutput_Output
+    ResearchTaskInput_Output:
+      type: object
+      properties:
+        excludeDomains:
+          description: The domains you want to exclude of the search. By default, don't restrict the search.
+          example:
+          - wikipedia.org
+          type: array
+          items:
+            example: wikipedia.org
+            type: string
+        fromDate:
+          description: The date from which the search results should be considered, in ISO 8601 format (YYYY-MM-DD). It must be before `toDate`, if provided, and later than 1970-01-01.
+          example: '2025-01-01'
+          type: string
+          format: date
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+        includeDomains:
+          description: The domains you want to search on. By default, don't restrict the search. You can provide up to 100 domains.
+          example:
+          - microsoft.com
+          - agolution.com
+          maxItems: 100
+          type: array
+          items:
+            example: microsoft.com
+            type: string
+        q:
+          description: The natural language question for which you want to retrieve context.
+          example: What is Microsoft's 2024 revenue?
+          type: string
+        structuredOutputSchema:
+          default: null
+          format: json
+          description: Required only when `outputType` is `structured`. Provide a JSON schema object representing the desired response format. The root must be of type `object`.
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties: {}
+        toDate:
+          description: The date until which the search results should be considered, in ISO 8601 format (YYYY-MM-DD). It must be later than `fromDate`, if provided, or than 1970-01-01.
+          example: '2025-01-01'
+          type: string
+          format: date
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+        mode:
+          default: auto
+          description: Pin the research agent mode. Omit to let the agent auto-classify per request based on the question.
+          enum:
+          - answer
+          - auto
+          - investigate
+          - research
+          type: string
+        outputType:
+          type: string
+          enum:
+          - sourcedAnswer
+          - structured
+          description: The type of output you want to get. Use `structured` for a custom-formatted response defined by `structuredOutputSchema`.
+        reasoningDepth:
+          default: L
+          description: Pin the reasoning depth (S < M < L < XL). Defaults to L when omitted. Higher depths trade latency for thoroughness.
+          enum:
+          - L
+          - M
+          - S
+          - XL
+          type: string
+      required:
+      - q
+      - toDate
+      - mode
+      - outputType
+      - reasoningDepth
+      additionalProperties: false
+      id: ResearchTaskInput_Output
+    ImageSearchResultOutput:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The title or name of the resource.
+          example: Microsoft 2024 Annual Report
+        url:
+          type: string
+          description: The URL of the resource.
+          example: https://www.microsoft.com/investor/reports/ar24/index.html
+          format: uri
+        type:
+          type: string
+          const: image
+          description: The type of the resource.
+          enum:
+          - image
+          example: image
+      required:
+      - name
+      - url
+      - type
+      id: ImageSearchResultOutput
+    ResearchTaskOutput:
+      type: object
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+          description: The date and time when the task was created.
+          example: '2026-01-01T00:00:00.000Z'
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The error message if the task failed.
+        id:
+          type: string
+          description: The unique identifier of the task.
+          example: 01234-abcd-56789
+        status:
+          type: string
+          enum:
+          - completed
+          - failed
+          - pending
+          - processing
+          description: The current status of the task.
+          example: completed
+        updatedAt:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+          description: The date and time when the task status was last updated.
+          example: '2026-01-01T00:00:00.000Z'
+        input:
+          $ref: '#/components/schemas/ResearchTaskInput'
+        output:
+          anyOf:
+          - anyOf:
+            - $ref: '#/components/schemas/ResearchSourcedAnswerOutput'
+            - $ref: '#/components/schemas/StructuredOutput'
+          - type: 'null'
+        type:
+          type: string
+          const: research
+      required:
+      - createdAt
+      - error
+      - id
+      - status
+      - updatedAt
+      - input
+      - output
+      - type
+      id: ResearchTaskOutput
+    TextSearchResultOutput:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The title or name of the resource.
+          example: Microsoft 2024 Annual Report
+        url:
+          type: string
+          description: The URL of the resource.
+          example: https://www.microsoft.com/investor/reports/ar24/index.html
+          format: uri
+        content:
+          type: string
+          description: Extracted text content associated with the resource.
+          example: 'Highlights from fiscal year 2024 compared with fiscal year 2023 included: Microsoft Cloud revenue increased 23% to $137.4 billion.'
+        favicon:
+          anyOf:
+          - type: string
+            const: ''
+          - type: string
+            format: uri
+          description: The favicon URL, if available.
+          example: https://www.microsoft.com/favicon.ico
+          format: uri
+        type:
+          type: string
+          const: text
+          description: The type of the resource.
+          enum:
+          - text
+          example: text
+      required:
+      - name
+      - url
+      - content
+      - favicon
+      - type
+      id: TextSearchResultOutput
+  securitySchemes:
+    bearer:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http

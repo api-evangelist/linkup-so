@@ -1,0 +1,229 @@
+openapi: 3.2.0
+info:
+  title: Linkup Responses API
+  description: Search the web in real time to get trustworthy, source-backed answers. Find the latest news and comprehensive results from the most relevant sources. Use natural language queries to quickly gather facts, citations, and context.
+  version: '1.0'
+  contact: {}
+servers:
+- url: https://api.linkup.so
+tags:
+- name: Responses
+paths:
+  /v1/responses:
+    post:
+      description: Proxy endpoint for OpenAI response generation — use when the OpenAI client's base URL is set to linkup.
+      operationId: responses
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateResponsesInput'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponsesOutput_Output'
+        '400':
+          description: Bad Request - Invalid parameters
+        '401':
+          description: Unauthorized - Invalid or missing API key
+        '429':
+          description: Too Many Requests - Rate limit exceeded or insufficient credits
+      security:
+      - bearer: []
+      summary: /responses
+      tags:
+      - Responses
+components:
+  schemas:
+    ResponsesMessageOutput_Output:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponsesTextOutput_Output'
+        id:
+          type: string
+        role:
+          type: string
+          const: assistant
+        status:
+          type: string
+          const: completed
+        type:
+          type: string
+          const: message
+      required:
+      - content
+      - id
+      - role
+      - status
+      - type
+      additionalProperties: false
+      id: ResponsesMessageOutput_Output
+    ResponsesTextFormatInput:
+      type: object
+      properties:
+        format:
+          anyOf:
+          - type: string
+          - type: object
+            propertyNames:
+              type: string
+            additionalProperties: {}
+          description: Defines the response text format. Accepts the literal string `text` for plain text or a JSON schema object that describes the desired structured output.
+          example: text
+      required:
+      - format
+      id: ResponsesTextFormatInput
+    ResponsesOutput_Output:
+      type: object
+      properties:
+        created_at:
+          type: number
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+        id:
+          type: string
+        incomplete_details:
+          type: 'null'
+        instructions:
+          type: 'null'
+        metadata:
+          type: 'null'
+        model:
+          type: string
+        object:
+          type: string
+          const: response
+        output:
+          anyOf:
+          - type: array
+            items:
+              $ref: '#/components/schemas/ResponsesMessageOutput_Output'
+          - type: 'null'
+        output_text:
+          type: string
+        parallel_tool_calls:
+          type: boolean
+        temperature:
+          type: 'null'
+        tool_choice:
+          type: string
+          const: auto
+        tools:
+          type: array
+          items: {}
+        top_p:
+          type: 'null'
+      required:
+      - created_at
+      - error
+      - id
+      - incomplete_details
+      - instructions
+      - metadata
+      - model
+      - object
+      - output
+      - output_text
+      - parallel_tool_calls
+      - temperature
+      - tool_choice
+      - tools
+      - top_p
+      id: ResponsesOutput_Output
+      additionalProperties: false
+    ResponsesTextOutput_Output:
+      type: object
+      properties:
+        annotations:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponsesUrlCitationOutput_Output'
+        text:
+          type: string
+        type:
+          type: string
+          const: output_text
+      required:
+      - annotations
+      - text
+      - type
+      additionalProperties: false
+      id: ResponsesTextOutput_Output
+    ResponsesUrlCitationOutput_Output:
+      type: object
+      properties:
+        end_index:
+          type: number
+        start_index:
+          type: number
+        title:
+          type: string
+        type:
+          type: string
+          const: url_citation
+        url:
+          type: string
+      required:
+      - end_index
+      - start_index
+      - title
+      - type
+      - url
+      additionalProperties: false
+      id: ResponsesUrlCitationOutput_Output
+    CreateResponsesInput:
+      type: object
+      properties:
+        input:
+          anyOf:
+          - type: string
+          - minItems: 1
+            type: array
+            items:
+              type: object
+              properties:
+                content:
+                  type: string
+                role:
+                  type: string
+                  enum:
+                  - user
+                  - assistant
+                  - developer
+              required:
+              - content
+              - role
+          description: The natural language question for which you want to retrieve context.
+          example: What is Microsoft's 2024 revenue?
+        instructions:
+          description: Optional instructions to guide the response generation. It`s similar to a system message.
+          example: You are a helpful assistant that provides concise answers.
+          type: string
+        model:
+          type: string
+          enum:
+          - linkup-deep
+          - linkup-standard
+          description: The model used to generate the response.`linkup-standard` returns results faster; `linkup-deep` takes longer but yields more comprehensive results.
+        text:
+          description: Optional custom text format configuration.
+          $ref: '#/components/schemas/ResponsesTextFormatInput'
+      required:
+      - input
+      - model
+      id: CreateResponsesInput
+  securitySchemes:
+    bearer:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http

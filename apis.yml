@@ -127,6 +127,46 @@ apis:
     url: https://docs.linkup.so/pages/documentation/api-reference/endpoint/post-fetch
   - type: APIReference
     url: https://docs.linkup.so/pages/documentation/api-reference/endpoint/get-balance
+- aid: linkup-so:linkup-so-extract-api
+  name: Linkup Extract API
+  description: The Extract API from Linkup — 2 operation(s) for extract.
+  humanURL: https://docs.linkup.so/pages/documentation/api-reference/endpoint/post-search
+  baseURL: https://api.linkup.so/v1
+  tags:
+  - Extract
+  properties:
+  - type: OpenAPI
+    url: openapi/linkup-so-extract-api-openapi.yml
+- aid: linkup-so:linkup-so-responses-api
+  name: Linkup Responses API
+  description: The Responses API from Linkup — 1 operation(s) for responses.
+  humanURL: https://docs.linkup.so/pages/documentation/api-reference/endpoint/post-search
+  baseURL: https://api.linkup.so/v1
+  tags:
+  - Responses
+  properties:
+  - type: OpenAPI
+    url: openapi/linkup-so-responses-api-openapi.yml
+- aid: linkup-so:linkup-so-rewind-api
+  name: Linkup Rewind API
+  description: The Rewind API from Linkup — 2 operation(s) for rewind.
+  humanURL: https://docs.linkup.so/pages/documentation/api-reference/endpoint/post-search
+  baseURL: https://api.linkup.so/v1
+  tags:
+  - Rewind
+  properties:
+  - type: OpenAPI
+    url: openapi/linkup-so-rewind-api-openapi.yml
+- aid: linkup-so:linkup-so-tasks-api
+  name: Linkup Tasks API
+  description: The Tasks API from Linkup — 2 operation(s) for tasks.
+  humanURL: https://docs.linkup.so/pages/documentation/api-reference/endpoint/post-search
+  baseURL: https://api.linkup.so/v1
+  tags:
+  - Tasks
+  properties:
+  - type: OpenAPI
+    url: openapi/linkup-so-tasks-api-openapi.yml
 common:
 - type: Pricing
   url: https://www.linkup.so/pricing

@@ -1,0 +1,379 @@
+openapi: 3.2.0
+info:
+  title: Linkup Extract API
+  description: Search the web in real time to get trustworthy, source-backed answers. Find the latest news and comprehensive results from the most relevant sources. Use natural language queries to quickly gather facts, citations, and context.
+  version: '1.0'
+  contact: {}
+servers:
+- url: https://api.linkup.so
+tags:
+- name: Extract
+paths:
+  /v1/extract:
+    post:
+      description: '[BETA] The `POST /extract` method creates an asynchronous extract task.'
+      operationId: createExtract
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostExtractInput'
+      responses:
+        '200':
+          description: Extract task created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostExtractOutput_Output'
+        '400':
+          description: Bad Request - Invalid parameters
+        '401':
+          description: Unauthorized - Invalid or missing API key
+        '403':
+          description: Forbidden - Extract tasks are not enabled for this organization.
+        '429':
+          description: Too Many Requests - Rate limit exceeded or insufficient credits
+      security:
+      - bearer: []
+      summary: /extract
+      tags:
+      - Extract
+    get:
+      description: '[BETA] The `GET /extract` method, without extract task identifier, lists all created extract tasks for the authenticated organization, with pagination.'
+      operationId: listExtract
+      parameters:
+      - name: page
+        required: false
+        in: query
+        schema:
+          default: 1
+          minimum: 1
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          type: integer
+      - name: sortBy
+        required: false
+        in: query
+        schema:
+          enum:
+          - createdAt
+          - updatedAt
+          type: string
+      - name: sortDirection
+        required: false
+        in: query
+        schema:
+          default: asc
+          enum:
+          - asc
+          - desc
+          type: string
+      responses:
+        '200':
+          description: Paginated list of extract tasks.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListExtractOutput'
+        '401':
+          description: Unauthorized - Invalid or missing API key
+      security:
+      - bearer: []
+      summary: /extract
+      tags:
+      - Extract
+  /v1/extract/{id}:
+    get:
+      description: '[BETA] The `GET /extract/:id` method, with extract task identifier, retrieves a specific extract task information.'
+      operationId: getExtract
+      parameters:
+      - name: id
+        required: true
+        in: path
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Extract task details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtractTaskOutput'
+        '400':
+          description: Bad Request - Invalid parameters
+        '401':
+          description: Unauthorized - Invalid or missing API key
+      security:
+      - bearer: []
+      summary: /extract/:id
+      tags:
+      - Extract
+components:
+  schemas:
+    ExtractTaskInput:
+      type: object
+      properties:
+        q:
+          description: '[BETA] The natural-language query describing which rows to extract and what each row should contain.'
+          type: string
+        schema:
+          default: null
+          format: json
+          description: '[BETA] Optional JSON schema describing a single extracted row. When provided, every returned row must match this schema.'
+        url:
+          description: '[BETA] The seed URL the extract task should start from.'
+          example: https://example.com/team
+          format: uri
+          type: string
+        verifyUrls:
+          default: false
+          description: '[BETA] Defines whether URLs found in extracted rows should be checked for reachability after extraction. Defaults to false.'
+          type: boolean
+      required:
+      - q
+      - url
+      description: '[BETA] Input for an extract task. The extract task type is in beta; its behavior and response shape may change.'
+      id: ExtractTaskInput
+    ExtractTaskInput_Output:
+      type: object
+      properties:
+        q:
+          description: '[BETA] The natural-language query describing which rows to extract and what each row should contain.'
+          type: string
+        schema:
+          default: null
+          format: json
+          description: '[BETA] Optional JSON schema object describing a single extracted row. When provided, every returned row must match this schema.'
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties: {}
+        url:
+          description: '[BETA] The seed URL the extract task should start from.'
+          example: https://example.com/team
+          format: uri
+          type: string
+        verifyUrls:
+          default: false
+          description: '[BETA] Defines whether URLs found in extracted rows should be checked for reachability after extraction. Defaults to false.'
+          type: boolean
+      required:
+      - q
+      - url
+      additionalProperties: false
+      description: '[BETA] Input for an extract task. The extract task type is in beta; its behavior and response shape may change.'
+      id: ExtractTaskInput_Output
+    PostExtractOutput_Output:
+      id: PostExtractOutput_Output
+      $ref: '#/components/schemas/ExtractTaskOutput_Output'
+    ExtractOutput_Output:
+      type: object
+      properties:
+        creditsUsed:
+          type: number
+          minimum: 0
+          description: '[BETA] Credits used by this extract task.'
+        resultUrl:
+          type: string
+          format: uri
+          description: '[BETA] URL to download the extracted rows as a newline-delimited JSON (NDJSON) file. The URL remains valid for 24 hours.'
+        rowsReturned:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+      required:
+      - creditsUsed
+      - resultUrl
+      - rowsReturned
+      additionalProperties: false
+      description: '[BETA] Output for an extract task. The extracted rows are stored as an NDJSON file and exposed through a time-limited URL. The extract task type is in beta; its behavior and response shape may change.'
+      id: ExtractOutput_Output
+    ExtractTaskOutput:
+      type: object
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+          description: The date and time when the task was created.
+          example: '2026-01-01T00:00:00.000Z'
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The error message if the task failed.
+        id:
+          type: string
+          description: The unique identifier of the task.
+          example: 01234-abcd-56789
+        status:
+          type: string
+          enum:
+          - completed
+          - failed
+          - pending
+          - processing
+          description: The current status of the task.
+          example: completed
+        updatedAt:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+          description: The date and time when the task status was last updated.
+          example: '2026-01-01T00:00:00.000Z'
+        input:
+          $ref: '#/components/schemas/ExtractTaskInput'
+        output:
+          anyOf:
+          - $ref: '#/components/schemas/ExtractOutput'
+          - type: 'null'
+        type:
+          type: string
+          const: extract
+      required:
+      - createdAt
+      - error
+      - id
+      - status
+      - updatedAt
+      - input
+      - output
+      - type
+      description: '[BETA] Extract task output. The extract task type is in beta; its behavior and response shape may change.'
+      id: ExtractTaskOutput
+    ListExtractOutput:
+      type: object
+      properties:
+        metadata:
+          type: object
+          properties:
+            page:
+              type: number
+            pageSize:
+              type: number
+            total:
+              type: number
+            totalPages:
+              type: number
+          required:
+          - page
+          - pageSize
+          - total
+          - totalPages
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExtractTaskOutput'
+      required:
+      - metadata
+      - data
+      id: ListExtractOutput
+    ExtractOutput:
+      type: object
+      properties:
+        creditsUsed:
+          type: number
+          minimum: 0
+          description: '[BETA] Credits used by this extract task.'
+        resultUrl:
+          type: string
+          format: uri
+          description: '[BETA] URL to download the extracted rows as a newline-delimited JSON (NDJSON) file. The URL remains valid for 24 hours.'
+        rowsReturned:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+      required:
+      - creditsUsed
+      - resultUrl
+      - rowsReturned
+      description: '[BETA] Output for an extract task. The extracted rows are stored as an NDJSON file and exposed through a time-limited URL. The extract task type is in beta; its behavior and response shape may change.'
+      id: ExtractOutput
+    PostExtractInput:
+      example:
+        q: All engineering team members with their name, role, and profile page
+        schema:
+          properties:
+            name:
+              description: Full name
+              type: string
+            profileUrl:
+              format: uri
+              type: string
+            role:
+              type: string
+          required:
+          - name
+          - profileUrl
+          type: object
+        url: https://example.com/team
+        verifyUrls: true
+      id: PostExtractInput
+      $ref: '#/components/schemas/ExtractTaskInput'
+    ExtractTaskOutput_Output:
+      type: object
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+          description: The date and time when the task was created.
+          example: '2026-01-01T00:00:00.000Z'
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The error message if the task failed.
+        id:
+          type: string
+          description: The unique identifier of the task.
+          example: 01234-abcd-56789
+        status:
+          type: string
+          enum:
+          - completed
+          - failed
+          - pending
+          - processing
+          description: The current status of the task.
+          example: completed
+        updatedAt:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+          description: The date and time when the task status was last updated.
+          example: '2026-01-01T00:00:00.000Z'
+        input:
+          $ref: '#/components/schemas/ExtractTaskInput_Output'
+        output:
+          anyOf:
+          - $ref: '#/components/schemas/ExtractOutput_Output'
+          - type: 'null'
+        type:
+          type: string
+          const: extract
+      required:
+      - createdAt
+      - error
+      - id
+      - status
+      - updatedAt
+      - input
+      - output
+      - type
+      additionalProperties: false
+      description: '[BETA] Extract task output. The extract task type is in beta; its behavior and response shape may change.'
+      id: ExtractTaskOutput_Output
+  securitySchemes:
+    bearer:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
