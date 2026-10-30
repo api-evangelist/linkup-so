@@ -1,4 +1,4 @@
-# Linkup (linkup-so)
+# Linkup
 
 <!-- API-EVANGELIST-PROVENANCE:BEGIN -->
 > ### About this repository
@@ -66,115 +66,124 @@
 
 Linkup is a production-grade web search and answer API for AI agents and LLMs. Its /search endpoint grounds model responses in real-time web context, returning ranked results, sourced answers with citations, or structured output, plus /fetch for clean LLM-ready markdown, an async /research endpoint, and a credits balance endpoint - all authenticated with a Bearer API key.
 
-**APIs.json:** [https://raw.githubusercontent.com/api-evangelist/linkup-so/refs/heads/main/apis.yml](https://raw.githubusercontent.com/api-evangelist/linkup-so/refs/heads/main/apis.yml)
+**Areas:** Artificial Intelligence · LLM · Web Search · Grounding · RAG
 
-## Tags
+## Linkup on APIs.io
 
-- AI
-- LLM
-- Web Search
-- Grounding
-- RAG
+Everything profiled for Linkup is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/linkup-so/](https://apis.io/providers/linkup-so/)** — or go straight to one of the APIs or properties below.
 
-## Timestamps
+### APIs (4)
 
-- **Created:** 2026-06-20
-- **Modified:** 2026-06-20
+- [Linkup Credits API](https://apis.io/apis/linkup-so/linkup-so-credits-api/) — The Credits API from Linkup — 1 operation(s) for credits.
+- [Linkup Fetch API](https://apis.io/apis/linkup-so/linkup-so-fetch-api/) — The Fetch API from Linkup — 1 operation(s) for fetch.
+- [Linkup Research API](https://apis.io/apis/linkup-so/linkup-so-research-api/) — The Research API from Linkup — 2 operation(s) for research.
+- [Linkup Search API](https://apis.io/apis/linkup-so/linkup-so-search-api/) — The Search API from Linkup — 1 operation(s) for search.
 
-## APIs
+### Published properties
 
-### Linkup Search API
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
 
-Grounds AI agents and LLMs in real-time web context. POST /search runs a natural-language query at fast, standard, or deep precision and returns ranked search results, a sourced answer with inline citations, or schema-driven structured output, with date, domain, and image filters.
+#### Agentic access (1)
 
-- **Human URL:** [https://docs.linkup.so/pages/documentation/api-reference/endpoint/post-search](https://docs.linkup.so/pages/documentation/api-reference/endpoint/post-search)
-- **Base URL:** `https://api.linkup.so/v1`
+Which operations an agent can call, which act, and which need a human in the loop.
 
-#### Tags
+- [Linkup So Agentic Access](https://apis.io/agentic-access/linkup-so/linkup-so-agentic-access/)
 
-- Web Search
-- Sourced Answer
-- Structured Output
+#### Collections (5)
 
-#### Properties
+Postman and Open Collection request collections.
 
-- [Documentation](https://docs.linkup.so/pages/documentation/get-started/introduction)
-- [API Reference](https://docs.linkup.so/pages/documentation/api-reference/endpoint/post-search)
-- [OpenAPI](openapi/linkup-so-openapi.yml) — [OpenAPI Specification](https://spec.openapis.org/oas/latest.html)
-- [Postman Collection](collections/linkup-so.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
-- [Open Collection](collections/linkup-so.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
+- [Linkup API](https://apis.io/collections/linkup-so/open-linkup-so/)
+- [Linkup Credits API](https://apis.io/collections/linkup-so/open-linkup-so-credits-api/)
+- [Linkup Credits Fetch API](https://apis.io/collections/linkup-so/open-linkup-so-fetch-api/)
+- [Linkup Credits Research API](https://apis.io/collections/linkup-so/open-linkup-so-research-api/)
+- [Linkup Credits Search API](https://apis.io/collections/linkup-so/open-linkup-so-search-api/)
 
-### Linkup Fetch API
+#### Security (3)
 
-POST /fetch retrieves the content of a given URL as clean, LLM-ready markdown, with options to render JavaScript, include raw HTML, and extract images.
+Authentication, trust centre, and vulnerability disclosure.
 
-- **Human URL:** [https://docs.linkup.so/pages/documentation/api-reference/endpoint/post-fetch](https://docs.linkup.so/pages/documentation/api-reference/endpoint/post-fetch)
-- **Base URL:** `https://api.linkup.so/v1`
+- [Linkup So Authentication](https://apis.io/security/linkup-so/linkup-so-authentication/)
+- [Linkup So Domain Security](https://apis.io/security/linkup-so/linkup-so-domain-security/)
+- [Linkup So Trust Center](https://apis.io/security/linkup-so/linkup-so-trust-center/)
 
-#### Tags
+#### Plans and pricing (1)
 
-- Fetch
-- Markdown
-- Content Extraction
+Published plans, tiers and prices.
 
-#### Properties
+- [Linkup So Plans Pricing](https://apis.io/plans/linkup-so/linkup-so-plans-pricing/)
 
-- [API Reference](https://docs.linkup.so/pages/documentation/api-reference/endpoint/post-fetch)
-- [OpenAPI](openapi/linkup-so-openapi.yml) — [OpenAPI Specification](https://spec.openapis.org/oas/latest.html)
-- [Postman Collection](collections/linkup-so.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
-- [Open Collection](collections/linkup-so.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
+#### Rate limits (1)
 
-### Linkup Research API
+Published request limits.
 
-Asynchronous deep-research endpoint (beta). POST /research starts an autonomous web investigation that returns a task id; poll the task until it reaches a terminal state to retrieve a synthesized, cited report.
+- [Linkup So Rate Limits](https://apis.io/rate-limits/linkup-so/linkup-so-rate-limits/)
 
-- **Human URL:** [https://docs.linkup.so/pages/documentation/get-started/introduction](https://docs.linkup.so/pages/documentation/get-started/introduction)
-- **Base URL:** `https://api.linkup.so/v1`
+#### FinOps (1)
 
-#### Tags
+What the API costs to run, by operation.
 
-- Research
-- Async
-- Citations
+- [Linkup So Finops](https://apis.io/finops/linkup-so/linkup-so-finops/)
 
-#### Properties
+## Where to find this API
 
-- [Documentation](https://docs.linkup.so/pages/documentation/get-started/introduction)
-- [OpenAPI](openapi/linkup-so-openapi.yml) — [OpenAPI Specification](https://spec.openapis.org/oas/latest.html)
-- [Postman Collection](collections/linkup-so.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
-- [Open Collection](collections/linkup-so.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
 
-### Linkup Credits API
-
-GET /credits/balance returns the number of credits remaining in your account.
-
-- **Human URL:** [https://docs.linkup.so/pages/documentation/api-reference/endpoint/get-balance](https://docs.linkup.so/pages/documentation/api-reference/endpoint/get-balance)
-- **Base URL:** `https://api.linkup.so/v1`
-
-#### Tags
-
-- Credits
-- Account
-- Balance
-
-#### Properties
-
-- [API Reference](https://docs.linkup.so/pages/documentation/api-reference/endpoint/get-balance)
-- [OpenAPI](openapi/linkup-so-openapi.yml) — [OpenAPI Specification](https://spec.openapis.org/oas/latest.html)
-- [Postman Collection](collections/linkup-so.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
-- [Open Collection](collections/linkup-so.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
-
-## Common Properties
-
-- [GitHub Organization](https://github.com/LinkupPlatform)
-- [LinkedIn](https://www.linkedin.com/company/linkup-platform)
 - [Website](https://www.linkup.so)
 - [Documentation](https://docs.linkup.so)
-- [Plans](plans/linkup-so-plans-pricing.yml)
-- [Rate Limits](rate-limits/linkup-so-rate-limits.yml)
-- [Fin Ops](finops/linkup-so-finops.yml)
+- [Pricing](https://www.linkup.so/pricing)
+- [Blog](https://www.linkup.so/blog)
+- [GitHub](https://github.com/LinkupPlatform)
 
-## Maintainers
+## API Evangelist rating
 
-**FN:** Kin Lane
-**Email:** kin@apievangelist.com
+**Kin Score 37.3** — thin · rubric 0.24.0 · scored 2026-10-17
+
+| Facet | Score |
+|---|---|
+| Discoverability | 66.1 |
+| Contract quality | 48.4 |
+| Contract governance | 0.0 |
+| Operational transparency | 23.7 |
+| Developer ergonomics | 31.0 |
+| Access clarity | 50.0 |
+
+**Agent readiness 19.8** — agent-aware
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | derived (partial credit) |
+| Reversibility Documented | — |
+| MCP Server | — |
+| Auth Clarity | bearer (partial credit) |
+| Idempotency | — |
+| Error Semantics | — |
+| OpenAPI Examples | — |
+| Rate Limit Signal | documented (partial credit) |
+| Event Surface Described | — |
+| Agent Skills | — |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+
+**Regulatory alignment 15.5** — Horizontal (data, software, accessibility, platform)
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/linkup-so/](https://apis.io/providers/linkup-so/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for Linkup: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/linkup-so/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
